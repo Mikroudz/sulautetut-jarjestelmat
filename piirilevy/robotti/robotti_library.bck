@@ -1,9 +1,50 @@
 EESchema-DOCLIB  Version 2.0
 #
+$CMP ALS-PT19-315C
+D Phototransistor NPN
+K npn phototransistor
+$ENDCMP
+#
+$CMP BP103B
+D NPN phototransistor
+K NPN phototransistor
+F http://www.b-kainka.de/Daten/Sensor/bp103bf.pdf
+$ENDCMP
+#
+$CMP BP103BF
+D NPN phototransistor with daylight filter
+K IR NPN phototransistor
+F http://www.b-kainka.de/Daten/Sensor/bp103bf.pdf
+$ENDCMP
+#
+$CMP Conn_01x07_Male
+D Generic connector, single row, 01x07, script generated (kicad-library-utils/schlib/autogen/connector/)
+K connector
+F ~
+$ENDCMP
+#
 $CMP ICM-42605
 D High performance 6-Axis MEMS motion tracking, SPI/I2C interface, LGA-16
 K accelerometer gyro mems motion
 F https://3cfeqx1hf82y3xcoull08ihx-wpengine.netdna-ssl.com/wp-content/uploads/2020/09/DS-000292-ICM-42605-v1.5.pdf
+$ENDCMP
+#
+$CMP SFH300
+D silicon NPN phototransistor
+K NPN phototransistor
+F http://www.osram-os.com/Graphics/XPic2/00101785_0.pdf
+$ENDCMP
+#
+$CMP TMP235
+D Analog thermistor temperature sensor, ±2.5C accuracy, -55C to +130C, SC-70
+K temperature sensor thermistor
+F http://www.ti.com/lit/ds/symlink/tmp20.pdf
+$ENDCMP
+#
+$CMP VL53L1X
+D VL53L1X as JST XH connector (kicad-library-utils/schlib/autogen/connector/)
+K connector
+F ~
 $ENDCMP
 #
 #End Doc Library

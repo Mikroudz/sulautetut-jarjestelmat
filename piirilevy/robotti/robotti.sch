@@ -299,13 +299,6 @@ Wire Wire Line
 Wire Wire Line
 	3950 3800 3950 3650
 Connection ~ 3950 3650
-Wire Wire Line
-	5000 3500 5000 3700
-Wire Wire Line
-	5000 3700 5050 3700
-Connection ~ 4400 3500
-Wire Wire Line
-	4400 3500 5000 3500
 Connection ~ 4400 3800
 Wire Wire Line
 	4400 3800 4250 3800
@@ -581,4 +574,530 @@ $EndComp
 Connection ~ 4000 5700
 Wire Wire Line
 	4000 5700 4000 5800
+$Comp
+L robotti_library:ICM-42605 U?
+U 1 1 605D08DC
+P 2200 1900
+F 0 "U?" H 1750 1900 50  0000 R CNN
+F 1 "ICM-42605" H 1750 1800 50  0000 R CNN
+F 2 "Package_LGA:LGA-14_3x2.5mm_P0.5mm_LayoutBorder3x4y" H 2050 2500 50  0001 C CNN
+F 3 "https://3cfeqx1hf82y3xcoull08ihx-wpengine.netdna-ssl.com/wp-content/uploads/2020/09/DS-000292-ICM-42605-v1.5.pdf" H 2250 2850 50  0001 C CNN
+	1    2200 1900
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 605D561A
+P 2000 2900
+F 0 "#PWR?" H 2000 2650 50  0001 C CNN
+F 1 "GND" V 2005 2772 50  0000 R CNN
+F 2 "" H 2000 2900 50  0001 C CNN
+F 3 "" H 2000 2900 50  0001 C CNN
+	1    2000 2900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2200 2400 2200 2500
+Wire Wire Line
+	2200 2500 2300 2500
+Wire Wire Line
+	2100 2400 2100 2500
+Wire Wire Line
+	2100 2500 2200 2500
+Connection ~ 2200 2500
+Wire Wire Line
+	2300 2400 2300 2500
+Connection ~ 2300 2500
+$Comp
+L Device:C C?
+U 1 1 605DC58E
+P 2900 2300
+F 0 "C?" H 2750 2350 50  0000 C CNN
+F 1 "0.1uF" H 2700 2250 50  0000 C CNN
+F 2 "" H 2938 2150 50  0001 C CNN
+F 3 "~" H 2900 2300 50  0001 C CNN
+	1    2900 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 605DD99A
+P 3200 2300
+F 0 "C?" H 3350 2350 50  0000 C CNN
+F 1 "2.2uF" H 3400 2250 50  0000 C CNN
+F 2 "" H 3238 2150 50  0001 C CNN
+F 3 "~" H 3200 2300 50  0001 C CNN
+	1    3200 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 605DDFB7
+P 2000 2750
+F 0 "C?" H 2150 2800 50  0000 C CNN
+F 1 "10nF" H 2200 2700 50  0000 C CNN
+F 2 "" H 2038 2600 50  0001 C CNN
+F 3 "~" H 2000 2750 50  0001 C CNN
+	1    2000 2750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2700 2150 2900 2150
+Connection ~ 2900 2150
+Wire Wire Line
+	2900 2150 3200 2150
+Wire Wire Line
+	2300 2500 2900 2500
+Wire Wire Line
+	3200 2450 3200 2500
+Connection ~ 3200 2500
+Wire Wire Line
+	3200 2500 3300 2500
+Wire Wire Line
+	2900 2450 2900 2500
+Connection ~ 2900 2500
+Wire Wire Line
+	2900 2500 3200 2500
+$Comp
+L power:VDD #PWR?
+U 1 1 605FBFE4
+P 1850 2500
+F 0 "#PWR?" H 1850 2350 50  0001 C CNN
+F 1 "VDD" V 1865 2627 50  0000 L CNN
+F 2 "" H 1850 2500 50  0001 C CNN
+F 3 "" H 1850 2500 50  0001 C CNN
+	1    1850 2500
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:VDD #PWR?
+U 1 1 605FCF52
+P 3300 2150
+F 0 "#PWR?" H 3300 2000 50  0001 C CNN
+F 1 "VDD" V 3315 2277 50  0000 L CNN
+F 2 "" H 3300 2150 50  0001 C CNN
+F 3 "" H 3300 2150 50  0001 C CNN
+	1    3300 2150
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	3200 2150 3300 2150
+Connection ~ 3200 2150
+Wire Wire Line
+	2000 2400 2000 2500
+Wire Wire Line
+	1850 2500 2000 2500
+Connection ~ 2000 2500
+Wire Wire Line
+	2000 2500 2000 2600
+$Comp
+L power:GND #PWR?
+U 1 1 6060CCAF
+P 3300 2500
+F 0 "#PWR?" H 3300 2250 50  0001 C CNN
+F 1 "GND" V 3305 2372 50  0000 R CNN
+F 2 "" H 3300 2500 50  0001 C CNN
+F 3 "" H 3300 2500 50  0001 C CNN
+	1    3300 2500
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	1700 1750 1500 1750
+Text Label 2150 1150 3    50   ~ 0
+PC7
+Text Label 4800 4700 0    50   ~ 0
+PC7
+Wire Wire Line
+	2250 1400 2250 1150
+Text Label 2250 1150 3    50   ~ 0
+PA8
+Text Label 6700 3100 2    50   ~ 0
+PA8
+Text Label 1500 1750 0    50   ~ 0
+PC8
+Wire Wire Line
+	5050 4800 4800 4800
+Text Label 4800 4800 0    50   ~ 0
+PC8
+Wire Wire Line
+	5050 4700 4800 4700
+Wire Wire Line
+	2150 1400 2150 1150
+$Comp
+L power:VDD #PWR?
+U 1 1 6063D24E
+P 2350 1200
+F 0 "#PWR?" H 2350 1050 50  0001 C CNN
+F 1 "VDD" V 2365 1327 50  0000 L CNN
+F 2 "" H 2350 1200 50  0001 C CNN
+F 3 "" H 2350 1200 50  0001 C CNN
+	1    2350 1200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2350 1200 2350 1400
+Wire Wire Line
+	1700 1650 1500 1650
+$Comp
+L power:GND #PWR?
+U 1 1 6064425F
+P 1500 1650
+F 0 "#PWR?" H 1500 1400 50  0001 C CNN
+F 1 "GND" V 1505 1522 50  0000 R CNN
+F 2 "" H 1500 1650 50  0001 C CNN
+F 3 "" H 1500 1650 50  0001 C CNN
+	1    1500 1650
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	5050 4900 4800 4900
+Text Label 4800 4900 0    50   ~ 0
+PC9
+Text Label 2900 2050 2    50   ~ 0
+PC9
+Wire Wire Line
+	2700 2050 2900 2050
+$Comp
+L robotti_library:VL53L1X J?
+U 1 1 6065ABAB
+P 8000 4700
+F 0 "J?" H 8012 4205 50  0000 C CNN
+F 1 "VL53L1X" H 8012 4296 50  0000 C CNN
+F 2 "Connector_JST:JST_XH_B7B-XH-AM_1x07_P2.50mm_Vertical" H 8000 4700 50  0001 C CNN
+F 3 "~" H 8000 4700 50  0001 C CNN
+	1    8000 4700
+	1    0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 6066A9ED
+P 7650 4800
+F 0 "#PWR?" H 7650 4550 50  0001 C CNN
+F 1 "GND" V 7655 4672 50  0000 R CNN
+F 2 "" H 7650 4800 50  0001 C CNN
+F 3 "" H 7650 4800 50  0001 C CNN
+	1    7650 4800
+	0    1    1    0   
+$EndComp
+$Comp
+L power:VDD #PWR?
+U 1 1 6066BA8E
+P 7300 4900
+F 0 "#PWR?" H 7300 4750 50  0001 C CNN
+F 1 "VDD" V 7315 5027 50  0000 L CNN
+F 2 "" H 7300 4900 50  0001 C CNN
+F 3 "" H 7300 4900 50  0001 C CNN
+	1    7300 4900
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6066EC43
+P 7550 4500
+F 0 "R?" V 7350 4500 50  0000 C CNN
+F 1 "10k" V 7450 4500 50  0000 C CNN
+F 2 "" V 7480 4500 50  0001 C CNN
+F 3 "~" H 7550 4500 50  0001 C CNN
+	1    7550 4500
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	6450 4600 7800 4600
+Wire Wire Line
+	6450 4700 7800 4700
+Text Label 6700 4700 2    50   ~ 0
+PB7
+Text Label 6700 4600 2    50   ~ 0
+PB6
+Wire Wire Line
+	7800 4900 7300 4900
+Wire Wire Line
+	7650 4800 7800 4800
+Wire Wire Line
+	7400 4500 7300 4500
+Wire Wire Line
+	7300 4500 7300 4900
+Wire Wire Line
+	7700 4500 7800 4500
+Connection ~ 7300 4900
+$Comp
+L power:GND #PWR?
+U 1 1 60721F86
+P 7700 1600
+F 0 "#PWR?" H 7700 1350 50  0001 C CNN
+F 1 "GND" H 7800 1450 50  0000 R CNN
+F 2 "" H 7700 1600 50  0001 C CNN
+F 3 "" H 7700 1600 50  0001 C CNN
+	1    7700 1600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6450 5300 6700 5300
+Wire Wire Line
+	6450 5400 6700 5400
+Wire Wire Line
+	6450 5500 6700 5500
+Wire Wire Line
+	6450 5200 6700 5200
+Text Label 6700 5200 2    50   ~ 0
+PB12
+Text Label 6700 5300 2    50   ~ 0
+PB13
+Text Label 6700 5400 2    50   ~ 0
+PB14
+Text Label 6700 5500 2    50   ~ 0
+PB15
+Text Label 9500 1600 2    50   ~ 0
+PB14
+Text Label 9500 1700 2    50   ~ 0
+PB13
+Wire Wire Line
+	9200 1600 9500 1600
+Wire Wire Line
+	9200 1700 9500 1700
+Text Label 7750 1600 0    50   ~ 0
+PB9
+Wire Wire Line
+	6450 4800 6700 4800
+Wire Wire Line
+	6450 4900 6700 4900
+Text Label 6700 4800 2    50   ~ 0
+PB8
+Text Label 6700 4900 2    50   ~ 0
+PB9
+Wire Wire Line
+	6450 3100 6700 3100
+$Comp
+L robotti_library:TMP235 U?
+U 1 1 6079B556
+P 7500 2600
+F 0 "U?" H 7170 2554 50  0000 R CNN
+F 1 "TMP235" H 7170 2645 50  0000 R CNN
+F 2 "Package_TO_SOT_SMD:SOT-323_SC-70" H 7500 2200 50  0001 C CNN
+F 3 "http://www.ti.com/lit/ds/symlink/tmp20.pdf" H 7500 2600 50  0001 C CNN
+	1    7500 2600
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 607A94D2
+P 6850 2400
+F 0 "R?" V 6950 2400 50  0000 C CNN
+F 1 "R" V 7050 2400 50  0000 C CNN
+F 2 "" V 6780 2400 50  0001 C CNN
+F 3 "~" H 6850 2400 50  0001 C CNN
+	1    6850 2400
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 607AA380
+P 7300 2100
+F 0 "C?" V 7550 2100 50  0000 C CNN
+F 1 "C" V 7450 2100 50  0000 C CNN
+F 2 "" H 7338 1950 50  0001 C CNN
+F 3 "~" H 7300 2100 50  0001 C CNN
+	1    7300 2100
+	0    1    1    0   
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 607BA8CF
+P 7850 2100
+F 0 "#PWR?" H 7850 1850 50  0001 C CNN
+F 1 "GND" V 7750 2000 50  0000 R CNN
+F 2 "" H 7850 2100 50  0001 C CNN
+F 3 "" H 7850 2100 50  0001 C CNN
+	1    7850 2100
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:VDD #PWR?
+U 1 1 607C0535
+P 7500 3100
+F 0 "#PWR?" H 7500 2950 50  0001 C CNN
+F 1 "VDD" V 7515 3227 50  0000 L CNN
+F 2 "" H 7500 3100 50  0001 C CNN
+F 3 "" H 7500 3100 50  0001 C CNN
+	1    7500 3100
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:C C?
+U 1 1 607C1C96
+P 7700 3000
+F 0 "C?" V 7950 3000 50  0000 C CNN
+F 1 "C" V 7850 3000 50  0000 C CNN
+F 2 "" H 7738 2850 50  0001 C CNN
+F 3 "~" H 7700 3000 50  0001 C CNN
+	1    7700 3000
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	7500 2900 7500 3000
+Wire Wire Line
+	7550 3000 7500 3000
+Connection ~ 7500 3000
+Wire Wire Line
+	7500 3000 7500 3100
+$Comp
+L power:GND #PWR?
+U 1 1 607CC73F
+P 7850 3000
+F 0 "#PWR?" H 7850 2750 50  0001 C CNN
+F 1 "GND" V 7950 2950 50  0000 R CNN
+F 2 "" H 7850 3000 50  0001 C CNN
+F 3 "" H 7850 3000 50  0001 C CNN
+	1    7850 3000
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	7500 2100 7500 2300
+Wire Wire Line
+	7100 2100 7100 2400
+Wire Wire Line
+	6450 2400 6700 2400
+Wire Wire Line
+	8000 1600 7750 1600
+Wire Wire Line
+	7750 1500 8000 1500
+Text Label 7750 1500 0    50   ~ 0
+PB8
+Wire Wire Line
+	9200 1500 9500 1500
+Wire Wire Line
+	9200 1400 9500 1400
+Text Label 9500 1500 2    50   ~ 0
+PB15
+Text Label 9500 1400 2    50   ~ 0
+PB12
+Wire Wire Line
+	7700 1500 7700 1600
+Connection ~ 7700 1500
+Wire Wire Line
+	7550 1500 7700 1500
+Connection ~ 7550 1200
+$Comp
+L Device:C C?
+U 1 1 6072EF07
+P 7550 1350
+F 0 "C?" H 7300 1400 50  0000 L CNN
+F 1 "10uF" H 7300 1300 50  0000 L CNN
+F 2 "" H 7588 1200 50  0001 C CNN
+F 3 "~" H 7550 1350 50  0001 C CNN
+	1    7550 1350
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:VDD #PWR?
+U 1 1 6072E60A
+P 7550 1150
+F 0 "#PWR?" H 7550 1000 50  0001 C CNN
+F 1 "VDD" V 7565 1277 50  0000 L CNN
+F 2 "" H 7550 1150 50  0001 C CNN
+F 3 "" H 7550 1150 50  0001 C CNN
+	1    7550 1150
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8000 1200 7550 1200
+Connection ~ 7700 1400
+Wire Wire Line
+	7700 1300 7700 1400
+Wire Wire Line
+	8000 1300 7700 1300
+Wire Wire Line
+	7700 1400 7700 1500
+Wire Wire Line
+	8000 1400 7700 1400
+$Comp
+L robotti_library:RC-SM1276-868 U?
+U 1 1 6071EC14
+P 8600 1200
+F 0 "U?" H 8600 1865 50  0000 C CNN
+F 1 "RC-SM1276-868" H 8600 1774 50  0000 C CNN
+F 2 "" H 8600 1200 50  0001 C CNN
+F 3 "" H 8600 1200 50  0001 C CNN
+	1    8600 1200
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7000 2400 7100 2400
+Connection ~ 7100 2400
+Wire Wire Line
+	7100 2400 7100 2600
+Wire Wire Line
+	4400 3500 4650 3500
+Wire Wire Line
+	4650 3500 4650 3700
+Wire Wire Line
+	4650 3700 5050 3700
+Connection ~ 4400 3500
+$Comp
+L robotti_library:ALS-PT19-315C Q?
+U 1 1 6082D09E
+P 6600 1550
+F 0 "Q?" H 6800 1650 50  0000 L CNN
+F 1 "ALS-PT19-315C" H 6800 1550 50  0000 L CNN
+F 2 "Diode_SMD:D_1206_3216Metric_Pad1.42x1.75mm_HandSolder" H 7080 1410 50  0001 C CNN
+F 3 "" H 6600 1550 50  0001 C CNN
+	1    6600 1550
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:R R?
+U 1 1 6083078D
+P 6900 2100
+F 0 "R?" V 6800 2100 50  0000 C CNN
+F 1 "R" V 6700 2100 50  0000 C CNN
+F 2 "" V 6830 2100 50  0001 C CNN
+F 3 "~" H 6900 2100 50  0001 C CNN
+	1    6900 2100
+	0    -1   -1   0   
+$EndComp
+Connection ~ 7100 2100
+$Comp
+L Device:C C?
+U 1 1 60831578
+P 6900 1900
+F 0 "C?" V 7150 1900 50  0000 C CNN
+F 1 "C" V 7050 1900 50  0000 C CNN
+F 2 "" H 6938 1750 50  0001 C CNN
+F 3 "~" H 6900 1900 50  0001 C CNN
+	1    6900 1900
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	6700 2300 6450 2300
+Wire Wire Line
+	7100 1900 7100 2100
+Wire Wire Line
+	7050 2100 7100 2100
+Wire Wire Line
+	7050 1900 7100 1900
+Wire Wire Line
+	6700 1750 6700 1900
+Wire Wire Line
+	6750 1900 6700 1900
+Connection ~ 6700 1900
+Wire Wire Line
+	6700 1900 6700 2100
+Wire Wire Line
+	6750 2100 6700 2100
+Connection ~ 6700 2100
+Wire Wire Line
+	6700 2100 6700 2300
+Wire Wire Line
+	7550 1200 6700 1200
+Wire Wire Line
+	6700 1200 6700 1350
+Wire Wire Line
+	7550 1150 7550 1200
+Wire Wire Line
+	7500 2100 7850 2100
+Wire Wire Line
+	7450 2100 7500 2100
+Connection ~ 7500 2100
+Wire Wire Line
+	7150 2100 7100 2100
 $EndSCHEMATC
