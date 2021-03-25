@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP ICM-42605
+D High performance 6-Axis MEMS motion tracking, SPI/I2C interface, LGA-16
+K accelerometer gyro mems motion
+F https://3cfeqx1hf82y3xcoull08ihx-wpengine.netdna-ssl.com/wp-content/uploads/2020/09/DS-000292-ICM-42605-v1.5.pdf
+$ENDCMP
+#
+#End Doc Library
