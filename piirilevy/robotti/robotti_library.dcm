@@ -35,6 +35,12 @@ K NPN phototransistor
 F http://www.osram-os.com/Graphics/XPic2/00101785_0.pdf
 $ENDCMP
 #
+$CMP ST-LINK_V2
+D Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)
+K connector
+F ~
+$ENDCMP
+#
 $CMP TMP235
 D Analog thermistor temperature sensor, ±2.5C accuracy, -55C to +130C, SC-70
 K temperature sensor thermistor
@@ -43,6 +49,12 @@ $ENDCMP
 #
 $CMP VL53L1X
 D VL53L1X as JST XH connector (kicad-library-utils/schlib/autogen/connector/)
+K connector
+F ~
+$ENDCMP
+#
+$CMP XT30
+D XT30 power connector
 K connector
 F ~
 $ENDCMP
