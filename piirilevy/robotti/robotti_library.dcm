@@ -29,6 +29,12 @@ K accelerometer gyro mems motion
 F https://3cfeqx1hf82y3xcoull08ihx-wpengine.netdna-ssl.com/wp-content/uploads/2020/09/DS-000292-ICM-42605-v1.5.pdf
 $ENDCMP
 #
+$CMP Nema14
+D Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)
+K connector
+F ~
+$ENDCMP
+#
 $CMP SFH300
 D silicon NPN phototransistor
 K NPN phototransistor
@@ -45,6 +51,12 @@ $CMP TMP235
 D Analog thermistor temperature sensor, ±2.5C accuracy, -55C to +130C, SC-70
 K temperature sensor thermistor
 F http://www.ti.com/lit/ds/symlink/tmp20.pdf
+$ENDCMP
+#
+$CMP UART
+D UART TX RX GND
+K connector
+F ~
 $ENDCMP
 #
 $CMP VL53L1X

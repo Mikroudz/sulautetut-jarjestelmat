@@ -29,12 +29,6 @@ K accelerometer gyro mems motion
 F https://3cfeqx1hf82y3xcoull08ihx-wpengine.netdna-ssl.com/wp-content/uploads/2020/09/DS-000292-ICM-42605-v1.5.pdf
 $ENDCMP
 #
-$CMP Nema14
-D Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)
-K connector
-F ~
-$ENDCMP
-#
 $CMP SFH300
 D silicon NPN phototransistor
 K NPN phototransistor
@@ -43,12 +37,6 @@ $ENDCMP
 #
 $CMP ST-LINK_V2
 D Generic connector, single row, 01x06, script generated (kicad-library-utils/schlib/autogen/connector/)
-K connector
-F ~
-$ENDCMP
-#
-$CMP Stepper_out
-D Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)
 K connector
 F ~
 $ENDCMP
