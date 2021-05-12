@@ -326,17 +326,6 @@ F 3 "~" H 4800 2700 50  0001 C CNN
 	1    4800 2700
 	0    -1   -1   0   
 $EndComp
-$Comp
-L power:VDD #PWR011
-U 1 1 606248D7
-P 4650 2700
-F 0 "#PWR011" H 4650 2550 50  0001 C CNN
-F 1 "VDD" V 4665 2827 50  0000 L CNN
-F 2 "" H 4650 2700 50  0001 C CNN
-F 3 "" H 4650 2700 50  0001 C CNN
-	1    4650 2700
-	0    -1   -1   0   
-$EndComp
 Wire Wire Line
 	4950 2700 5050 2700
 $Comp
@@ -619,27 +608,12 @@ F 3 "" H 7550 4650 50  0001 C CNN
 	1    7550 4650
 	0    -1   -1   0   
 $EndComp
-$Comp
-L Device:R R7
-U 1 1 6066EC43
-P 7800 4150
-F 0 "R7" V 7600 4150 50  0000 C CNN
-F 1 "10k" V 7700 4150 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 7730 4150 50  0001 C CNN
-F 3 "~" H 7800 4150 50  0001 C CNN
-	1    7800 4150
-	0    1    1    0   
-$EndComp
 Text Label 6700 4700 2    50   ~ 0
 PB7
 Text Label 6700 4600 2    50   ~ 0
 PB6
 Wire Wire Line
-	8100 4650 7600 4650
-Wire Wire Line
 	7950 4550 8100 4550
-Wire Wire Line
-	8000 4250 8100 4250
 $Comp
 L power:GND #PWR020
 U 1 1 60721F86
@@ -923,23 +897,8 @@ F 3 "" H 7550 5550 50  0001 C CNN
 	1    7550 5550
 	0    -1   -1   0   
 $EndComp
-$Comp
-L Device:R R8
-U 1 1 6067BCAC
-P 7800 5050
-F 0 "R8" V 7600 5050 50  0000 C CNN
-F 1 "10k" V 7700 5050 50  0000 C CNN
-F 2 "Resistor_SMD:R_0805_2012Metric" V 7730 5050 50  0001 C CNN
-F 3 "~" H 7800 5050 50  0001 C CNN
-	1    7800 5050
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	8100 5550 7600 5550
 Wire Wire Line
 	7950 5450 8100 5450
-Wire Wire Line
-	8000 5150 8100 5150
 Wire Wire Line
 	8100 4450 7100 4450
 Wire Wire Line
@@ -1055,7 +1014,7 @@ F 3 "~" H 1250 7250 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	1900 6950 1900 7400
+	1900 6950 1900 7100
 Wire Wire Line
 	1900 7400 2100 7400
 Connection ~ 2700 7400
@@ -1683,7 +1642,6 @@ Text Label 4850 4000 0    50   ~ 0
 PC0
 Wire Wire Line
 	3150 1350 3200 1350
-NoConn ~ 2000 6950
 NoConn ~ 2400 6750
 NoConn ~ 1400 6550
 NoConn ~ 8000 1100
@@ -1695,8 +1653,6 @@ NoConn ~ 9200 1300
 NoConn ~ 9200 1800
 NoConn ~ 9200 1900
 NoConn ~ 8100 4750
-NoConn ~ 8100 4150
-NoConn ~ 8100 5050
 NoConn ~ 8100 5650
 Text Label 6050 1900 1    50   ~ 0
 VDDA
@@ -1716,18 +1672,6 @@ Text Label 7650 5250 0    50   ~ 0
 SCL_VL53_2
 Text Label 7650 5350 0    50   ~ 0
 SDA_VL53_2
-Wire Wire Line
-	8000 5150 8000 5050
-Wire Wire Line
-	7600 5050 7600 5550
-Connection ~ 7600 5550
-Wire Wire Line
-	8000 4150 7950 4150
-Wire Wire Line
-	8000 4150 8000 4250
-Wire Wire Line
-	7600 4150 7600 4650
-Connection ~ 7600 4650
 Text Label 7650 4350 0    50   ~ 0
 SCL_VL53_1
 Text Label 7650 4450 0    50   ~ 0
@@ -1847,8 +1791,6 @@ PC13
 NoConn ~ 6700 2400
 NoConn ~ 6700 2500
 NoConn ~ 6700 2600
-NoConn ~ 6700 3100
-NoConn ~ 6700 3200
 NoConn ~ 4850 4000
 NoConn ~ 4800 4900
 NoConn ~ 6700 2300
@@ -1908,16 +1850,6 @@ Wire Wire Line
 	1650 2200 1450 2200
 NoConn ~ 1650 1750
 Wire Wire Line
-	7600 4150 7650 4150
-Wire Wire Line
-	7950 5050 8000 5050
-Wire Wire Line
-	7650 5050 7600 5050
-Wire Wire Line
-	7550 4650 7600 4650
-Wire Wire Line
-	7550 5550 7600 5550
-Wire Wire Line
 	7050 2150 7100 2150
 Wire Wire Line
 	7100 2150 7100 1800
@@ -1928,4 +1860,29 @@ Wire Wire Line
 	6700 2150 6700 1800
 Wire Wire Line
 	6700 1200 7550 1200
+Wire Wire Line
+	7550 4650 8100 4650
+Wire Wire Line
+	7550 5550 8100 5550
+NoConn ~ 8100 4250
+NoConn ~ 8100 5150
+Wire Wire Line
+	8100 4150 7850 4150
+Wire Wire Line
+	8100 5050 7850 5050
+Text Label 7850 4150 0    50   ~ 0
+PA9
+Text Label 7850 5050 0    50   ~ 0
+PA8
+Wire Wire Line
+	2000 6950 2000 7100
+Wire Wire Line
+	2000 7100 1900 7100
+Connection ~ 1900 7100
+Wire Wire Line
+	1900 7100 1900 7400
+Wire Wire Line
+	4600 2500 4600 2700
+Wire Wire Line
+	4600 2700 4650 2700
 $EndSCHEMATC
