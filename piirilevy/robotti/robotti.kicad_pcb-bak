@@ -8,6 +8,9 @@
 =======
     (drawings 17)
     (tracks 690)
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     (zones 0)
     (modules 63)
@@ -1180,7 +1183,11 @@
     (path /6063F30F)
     (attr smd)
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     (fp_text reference R5 (at 0 -1.65) (layer F.SilkS)
+=======
+    (fp_text reference R4 (at -0.087 1.397 90) (layer F.SilkS)
+>>>>>>> Stashed changes
 =======
     (fp_text reference R4 (at -0.087 1.397 90) (layer F.SilkS)
 >>>>>>> Stashed changes
@@ -3435,6 +3442,9 @@
 =======
   (module Capacitor_SMD:C_0805_2012Metric (layer F.Cu) (tedit 5F68FEEE) (tstamp 60705AB8)
     (at 132.7785 79.563 90)
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     (descr "Capacitor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf, https://docs.google.com/spreadsheets/d/1BsfQQcO9C6DZCsRaXUlFlo91Tg2WpOkGARC1WS5S8t0/edit?usp=sharing), generated with kicad-footprint-generator")
     (tags capacitor)
@@ -8222,6 +8232,9 @@
         (xy 102.487523 47.794353) (xy 102.441842 47.831842) (xy 102.404353 47.877523) (xy 102.376496 47.92964) (xy 102.359341 47.98619)
         (xy 102.353549 48.045) (xy 97.327616 48.045) (xy 97.311025 47.961595) (xy 97.069803 47.379232) (xy 96.719602 46.855119)
         (xy 96.273881 46.409398) (xy 95.749768 46.059197) (xy 95.294936 45.8708) (xy 173.564064 45.8708)
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
       )
     )

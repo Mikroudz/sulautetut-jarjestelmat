@@ -43,6 +43,9 @@
     (user_trace_width 0.75)
     (trace_clearance 0.2)
     (zone_clearance 0)
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     (zone_45_only no)
     (trace_min 0.2)

@@ -301,6 +301,7 @@ F 1 "4.7uF" V 6150 4600 50  0000 C CNN
 F 2 "Capacitor_SMD:C_0805_2012Metric" H 6438 4450 50  0001 C CNN
 F 3 "~" H 6400 4600 50  0001 C CNN
 	1    6400 4600
+<<<<<<< Updated upstream
 	0    -1   -1   0   
 $EndComp
 $Comp
@@ -312,6 +313,8 @@ F 1 "VDD" V 4665 2827 50  0000 L CNN
 F 2 "" H 4650 2700 50  0001 C CNN
 F 3 "" H 4650 2700 50  0001 C CNN
 	1    4650 2700
+=======
+>>>>>>> Stashed changes
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
@@ -501,6 +504,7 @@ F 3 "~" H 3800 3900 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	3350 3300 3250 3300
+<<<<<<< Updated upstream
 Wire Wire Line
 	3250 3900 3350 3900
 Wire Wire Line
@@ -526,6 +530,17 @@ Wire Wire Line
 =======
 	3250 3600 3250 3900
 >>>>>>> Stashed changes
+=======
+Wire Wire Line
+	3250 3900 3350 3900
+Wire Wire Line
+	3250 3600 3350 3600
+Wire Wire Line
+	3250 3300 3250 3600
+Connection ~ 3250 3600
+Wire Wire Line
+	3250 3600 3250 3900
+>>>>>>> Stashed changes
 $Comp
 L power:GND #PWR08
 U 1 1 6066CF46
@@ -539,6 +554,7 @@ F 3 "" H 3250 4000 50  0001 C CNN
 $EndComp
 Connection ~ 3250 3900
 Wire Wire Line
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 	4000 5700 4000 5800
 $Comp
@@ -692,6 +708,17 @@ Text Label 1750 2300 1    50   ~ 0
 PB6
 Text Label 8300 5000 2    50   ~ 0
 PA8
+=======
+	3250 3900 3250 4000
+Text Label 1650 2300 1    50   ~ 0
+PB7
+Text Label 6400 6600 0    50   ~ 0
+PC7
+Text Label 1750 2300 1    50   ~ 0
+PB6
+Text Label 8300 5000 2    50   ~ 0
+PA8
+>>>>>>> Stashed changes
 Text Label 1050 1700 0    50   ~ 0
 PB4
 >>>>>>> Stashed changes
@@ -701,6 +728,7 @@ Text Label 6400 6700 0    50   ~ 0
 PC8
 Wire Wire Line
 	6650 6600 6400 6600
+<<<<<<< Updated upstream
 Wire Wire Line
 <<<<<<< Updated upstream
 	2150 1400 2150 1150
@@ -730,10 +758,13 @@ F 3 "" H 1500 1650 50  0001 C CNN
 	1    1500 1650
 	0    1    1    0   
 $EndComp
+=======
+>>>>>>> Stashed changes
 Wire Wire Line
-	5050 4900 4800 4900
-Text Label 4800 4900 0    50   ~ 0
+	6650 6800 6400 6800
+Text Label 6400 6800 0    50   ~ 0
 PC9
+<<<<<<< Updated upstream
 Text Label 2900 2050 2    50   ~ 0
 PC9
 Wire Wire Line
@@ -742,6 +773,8 @@ Wire Wire Line
 	6650 6800 6400 6800
 Text Label 6400 6800 0    50   ~ 0
 PC9
+=======
+>>>>>>> Stashed changes
 Text Label 1050 1800 0    50   ~ 0
 PC12
 >>>>>>> Stashed changes
@@ -767,6 +800,7 @@ F 3 "" H 11400 3450 50  0001 C CNN
 	1    11400 3450
 	0    1    1    0   
 $EndComp
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 $Comp
 L power:VDD #PWR018
@@ -794,10 +828,14 @@ Text Label 6700 4700 2    50   ~ 0
 =======
 Text Label 8300 6600 2    50   ~ 0
 >>>>>>> Stashed changes
+=======
+Text Label 8300 6600 2    50   ~ 0
+>>>>>>> Stashed changes
 PB7
 Text Label 8300 6500 2    50   ~ 0
 PB6
 Wire Wire Line
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 	8100 4650 7600 4650
 Wire Wire Line
@@ -809,6 +847,9 @@ Wire Wire Line
 Wire Wire Line
 	8000 4250 8100 4250
 Connection ~ 7600 4650
+=======
+	11400 3450 11550 3450
+>>>>>>> Stashed changes
 =======
 	11400 3450 11550 3450
 >>>>>>> Stashed changes
@@ -825,6 +866,7 @@ F 3 "" H 10300 1250 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	8050 7200 8300 7200
+<<<<<<< Updated upstream
 Wire Wire Line
 <<<<<<< Updated upstream
 	6450 5400 6700 5400
@@ -837,6 +879,11 @@ Text Label 6700 5200 2    50   ~ 0
 	8050 7100 8300 7100
 Text Label 8300 7100 2    50   ~ 0
 >>>>>>> Stashed changes
+=======
+Wire Wire Line
+	8050 7100 8300 7100
+Text Label 8300 7100 2    50   ~ 0
+>>>>>>> Stashed changes
 PB12
 Text Label 8300 7200 2    50   ~ 0
 PB13
@@ -844,6 +891,7 @@ Text Label 8300 7300 2    50   ~ 0
 PB14
 Text Label 8300 7400 2    50   ~ 0
 PB15
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 Text Label 9500 1600 2    50   ~ 0
 PB14
@@ -855,6 +903,8 @@ Wire Wire Line
 	9200 1700 9500 1700
 Text Label 7750 1600 0    50   ~ 0
 PB9
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 Wire Wire Line
@@ -871,6 +921,7 @@ $Comp
 L robotti_library:TMP235 U3
 U 1 1 6079B556
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 P 8700 2800
 F 0 "U3" H 8370 2754 50  0000 R CNN
 F 1 "TMP235" H 8370 2845 50  0000 R CNN
@@ -878,18 +929,24 @@ F 2 "Package_TO_SOT_SMD:SOT-323_SC-70" H 8700 2400 50  0001 C CNN
 F 3 "http://www.ti.com/lit/ds/symlink/tmp20.pdf" H 8700 2800 50  0001 C CNN
 	1    8700 2800
 =======
+=======
+>>>>>>> Stashed changes
 P 1700 3650
 F 0 "U3" H 1370 3604 50  0000 R CNN
 F 1 "TMP235" H 1370 3695 50  0000 R CNN
 F 2 "Package_TO_SOT_SMD:SOT-323_SC-70" H 1700 3250 50  0001 C CNN
 F 3 "http://www.ti.com/lit/ds/symlink/tmp20.pdf" H 1700 3650 50  0001 C CNN
 	1    1700 3650
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 	-1   0    0    1   
 $EndComp
 $Comp
 L Device:C C11
 U 1 1 607AA380
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 P 8450 2300
 F 0 "C11" V 8700 2300 50  0000 C CNN
@@ -898,18 +955,24 @@ F 2 "Capacitor_SMD:C_0805_2012Metric" H 8488 2150 50  0001 C CNN
 F 3 "~" H 8450 2300 50  0001 C CNN
 	1    8450 2300
 =======
+=======
+>>>>>>> Stashed changes
 P 1450 3150
 F 0 "C11" V 1700 3150 50  0000 C CNN
 F 1 "680pF" V 1600 3150 50  0000 C CNN
 F 2 "Capacitor_SMD:C_0805_2012Metric" H 1488 3000 50  0001 C CNN
 F 3 "~" H 1450 3150 50  0001 C CNN
 	1    1450 3150
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 	0    -1   -1   0   
 $EndComp
 $Comp
 L power:GND #PWR021
 U 1 1 607BA8CF
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 P 9000 2300
 F 0 "#PWR021" H 9000 2050 50  0001 C CNN
@@ -1021,6 +1084,56 @@ PB12
 Wire Wire Line
 	11000 1650 10850 1650
 Wire Wire Line
+=======
+P 2000 3150
+F 0 "#PWR021" H 2000 2900 50  0001 C CNN
+F 1 "GND" V 1900 3050 50  0000 R CNN
+F 2 "" H 2000 3150 50  0001 C CNN
+F 3 "" H 2000 3150 50  0001 C CNN
+	1    2000 3150
+	0    -1   -1   0   
+$EndComp
+$Comp
+L Device:C C13
+U 1 1 607C1C96
+P 1900 4050
+F 0 "C13" V 2150 4050 50  0000 C CNN
+F 1 "0.1uF" V 2050 4050 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 1938 3900 50  0001 C CNN
+F 3 "~" H 1900 4050 50  0001 C CNN
+	1    1900 4050
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	1700 3950 1700 4050
+Wire Wire Line
+	1750 4050 1700 4050
+Connection ~ 1700 4050
+Wire Wire Line
+	1700 4050 1700 4150
+$Comp
+L power:GND #PWR022
+U 1 1 607CC73F
+P 2050 4050
+F 0 "#PWR022" H 2050 3800 50  0001 C CNN
+F 1 "GND" V 1950 4000 50  0000 R CNN
+F 2 "" H 2050 4050 50  0001 C CNN
+F 3 "" H 2050 4050 50  0001 C CNN
+	1    2050 4050
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	1700 3150 1700 3350
+Wire Wire Line
+	11000 1950 10750 1950
+Wire Wire Line
+	10750 1850 11000 1850
+Wire Wire Line
+	10850 1650 10850 1750
+Wire Wire Line
+	11000 1650 10850 1650
+Wire Wire Line
+>>>>>>> Stashed changes
 	11000 1750 10850 1750
 $Comp
 L robotti_library:RC-SM1276-868 U4
@@ -1064,9 +1177,15 @@ F 3 "~" H 5800 1750 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	8300 4200 8050 4200
+<<<<<<< Updated upstream
 Wire Wire Line
 	5950 1750 6000 1750
 Wire Wire Line
+=======
+Wire Wire Line
+	5950 1750 6000 1750
+Wire Wire Line
+>>>>>>> Stashed changes
 	5600 1150 5600 1300
 $Comp
 L power:GND #PWR015
@@ -1082,6 +1201,7 @@ $EndComp
 $Comp
 L Device:C C10
 U 1 1 606750D5
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 P 7000 1200
 F 0 "C10" V 7250 1200 50  0000 C CNN
@@ -1136,6 +1256,30 @@ Wire Wire Line
 	1250 3150 1250 3650
 Text Label 8300 6900 2    50   ~ 0
 >>>>>>> Stashed changes
+=======
+P 5800 2100
+F 0 "C10" V 5650 2100 50  0000 C CNN
+F 1 "1uF" V 5550 2100 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 5838 1950 50  0001 C CNN
+F 3 "~" H 5800 2100 50  0001 C CNN
+	1    5800 2100
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	5600 1700 5600 1750
+Wire Wire Line
+	5650 1750 5600 1750
+Wire Wire Line
+	1700 3150 2000 3150
+Connection ~ 1700 3150
+Wire Wire Line
+	1600 3150 1700 3150
+Wire Wire Line
+	1300 3150 1250 3150
+Wire Wire Line
+	1250 3150 1250 3650
+Text Label 8300 6900 2    50   ~ 0
+>>>>>>> Stashed changes
 PB10
 Text Label 8300 7000 2    50   ~ 0
 PB11
@@ -1161,6 +1305,7 @@ F 3 "" H 11350 4900 50  0001 C CNN
 	1    11350 4900
 	0    1    1    0   
 $EndComp
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 $Comp
 L power:VDD #PWR019
@@ -1219,6 +1364,10 @@ Wire Wire Line
 	7100 5250 8100 5250
 Wire Wire Line
 	7000 5350 8100 5350
+=======
+Wire Wire Line
+	11350 4900 11500 4900
+>>>>>>> Stashed changes
 =======
 Wire Wire Line
 	11350 4900 11500 4900
@@ -1324,7 +1473,11 @@ F 3 "~" H 10600 7150 50  0001 C CNN
 $EndComp
 Wire Wire Line
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	1900 6950 1900 7400
+=======
+	11250 6850 11250 7000
+>>>>>>> Stashed changes
 =======
 	11250 6850 11250 7000
 >>>>>>> Stashed changes
@@ -1335,6 +1488,7 @@ $Comp
 L Regulator_Switching:L5973D U5
 U 1 1 60663695
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 P 1900 6650
 F 0 "U5" H 2150 7050 50  0000 C CNN
 F 1 "L5973D" H 2150 6950 50  0000 C CNN
@@ -1342,12 +1496,17 @@ F 2 "Package_SO:HSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.41x3.1mm_ThermalVias" H 2050 62
 F 3 "http://www.st.com/resource/en/datasheet/l5973d.pdf" H 1900 6650 50  0001 C CNN
 	1    1900 6650
 =======
+=======
+>>>>>>> Stashed changes
 P 11250 6550
 F 0 "U5" H 11500 6950 50  0000 C CNN
 F 1 "L5973D" H 11500 6850 50  0000 C CNN
 F 2 "robotti:HSOP-8-1EP_3.9x4.9mm_P1.27mm_EP2.41x3.1mm_ThermalVias" H 11400 6100 50  0001 L CNN
 F 3 "http://www.st.com/resource/en/datasheet/l5973d.pdf" H 11250 6550 50  0001 C CNN
 	1    11250 6550
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 	1    0    0    -1  
 $EndComp
@@ -1406,6 +1565,7 @@ $Comp
 L power:GND #PWR028
 U 1 1 6081506E
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 P 2000 5650
 F 0 "#PWR028" H 2000 5400 50  0001 C CNN
 F 1 "GND" V 2005 5522 50  0000 R CNN
@@ -1414,6 +1574,8 @@ F 3 "" H 2000 5650 50  0001 C CNN
 	1    2000 5650
 	1    0    0    -1  
 =======
+=======
+>>>>>>> Stashed changes
 P 12600 8450
 F 0 "#PWR028" H 12600 8200 50  0001 C CNN
 F 1 "GND" V 12605 8322 50  0000 R CNN
@@ -1421,6 +1583,7 @@ F 2 "" H 12600 8450 50  0001 C CNN
 F 3 "" H 12600 8450 50  0001 C CNN
 	1    12600 8450
 	0    -1   -1   0   
+<<<<<<< Updated upstream
 >>>>>>> Stashed changes
 $EndComp
 Wire Wire Line
@@ -1473,12 +1636,44 @@ Wire Wire Line
 	10400 6650 10600 6650
 Connection ~ 10400 7300
 >>>>>>> Stashed changes
+=======
+$EndComp
+Wire Wire Line
+	10400 6650 10400 6850
+Wire Wire Line
+	10400 7150 10400 7300
+Connection ~ 11450 7300
+Wire Wire Line
+	11450 7300 12050 7300
+Wire Wire Line
+	12050 7300 12650 7300
+Wire Wire Line
+	12650 6550 12650 6450
+Wire Wire Line
+	12650 6900 11900 6900
+Wire Wire Line
+	12650 6950 12650 6900
+Wire Wire Line
+	11900 6900 11900 6550
+Connection ~ 12650 6900
+Wire Wire Line
+	12650 6900 12650 6850
+Wire Wire Line
+	12650 7250 12650 7300
+Connection ~ 12650 7300
+Wire Wire Line
+	12650 7300 13000 7300
+Wire Wire Line
+	10400 6650 10600 6650
+Connection ~ 10400 7300
+>>>>>>> Stashed changes
 Wire Wire Line
 	10400 7300 10600 7300
 Wire Wire Line
 	10100 7300 10400 7300
 Wire Wire Line
 	12100 6450 12050 6450
+<<<<<<< Updated upstream
 Wire Wire Line
 <<<<<<< Updated upstream
 	5050 4000 4800 4000
@@ -1487,6 +1682,11 @@ Wire Wire Line
 Wire Wire Line
 	4800 4150 3700 4150
 =======
+	12600 6450 12650 6450
+Connection ~ 12650 6450
+>>>>>>> Stashed changes
+=======
+Wire Wire Line
 	12600 6450 12650 6450
 Connection ~ 12650 6450
 >>>>>>> Stashed changes
@@ -1570,9 +1770,15 @@ Regulaattori 3,3 V
 Text Notes 11800 7800 0    50   ~ 0
 Virransyöttö akusta 11,1 - 14 V
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 Text Notes 2350 2700 0    50   ~ 0
 Kiihtyvyyssensori IMU
 Text Notes 8850 2550 0    50   ~ 0
+=======
+Text Notes 1250 750  0    50   ~ 0
+Kiihtyvyyssensori IMU
+Text Notes 1350 2650 0    50   ~ 0
+>>>>>>> Stashed changes
 =======
 Text Notes 1250 750  0    50   ~ 0
 Kiihtyvyyssensori IMU
@@ -1589,6 +1795,7 @@ $Comp
 L robotti_library:UART J5
 U 1 1 606812C9
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 P 7300 2500
 F 0 "J5" H 7100 2500 50  0000 R CNN
 F 1 "UART" H 7150 2400 50  0000 R CNN
@@ -1596,18 +1803,24 @@ F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 7800 2150 50 
 F 3 "~" H 7300 2500 50  0001 C CNN
 	1    7300 2500
 =======
+=======
+>>>>>>> Stashed changes
 P 1950 5100
 F 0 "J5" H 1750 5100 50  0000 R CNN
 F 1 "UART" H 1800 5000 50  0000 R CNN
 F 2 "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" H 2450 4750 50  0001 C CNN
 F 3 "~" H 1950 5100 50  0001 C CNN
 	1    1950 5100
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 	-1   0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR034
 U 1 1 606A9706
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 P 7100 2700
 F 0 "#PWR034" H 7100 2450 50  0001 C CNN
@@ -1620,6 +1833,19 @@ $EndComp
 Text Label 6550 2500 0    50   ~ 0
 PA2
 Text Label 6550 2600 0    50   ~ 0
+=======
+P 1750 5300
+F 0 "#PWR034" H 1750 5050 50  0001 C CNN
+F 1 "GND" V 1750 5200 50  0000 R CNN
+F 2 "" H 1750 5300 50  0001 C CNN
+F 3 "" H 1750 5300 50  0001 C CNN
+	1    1750 5300
+	0    1    1    0   
+$EndComp
+Text Label 8300 4400 2    50   ~ 0
+PA2
+Text Label 8300 4500 2    50   ~ 0
+>>>>>>> Stashed changes
 =======
 P 1750 5300
 F 0 "#PWR034" H 1750 5050 50  0001 C CNN
@@ -1736,6 +1962,7 @@ Text Label 14450 3700 0    50   ~ 0
 PA12
 $Comp
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 L power:VCC #PWR039
 U 1 1 606DF10C
 P 1650 5650
@@ -1750,6 +1977,8 @@ Wire Wire Line
 	1650 5650 1900 5650
 Connection ~ 1900 5650
 $Comp
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 L power:VCC #PWR040
@@ -1788,6 +2017,7 @@ Wire Wire Line
 	14700 1150 14450 1150
 Wire Wire Line
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	10400 2500 10150 2500
 Text Label 10150 2500 0    50   ~ 0
 PC3
@@ -1796,6 +2026,8 @@ PC2
 Text Label 10150 1800 0    50   ~ 0
 PC1
 =======
+=======
+>>>>>>> Stashed changes
 	14700 1750 14450 1750
 Text Label 14450 1750 0    50   ~ 0
 PC8
@@ -1815,9 +2047,12 @@ PC4
 Text Label 14450 3500 0    50   ~ 0
 PC5
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 Text Label 10150 4650 0    50   ~ 0
 PA9
 =======
+=======
+>>>>>>> Stashed changes
 Text Label 14450 4100 0    50   ~ 0
 PB2
 >>>>>>> Stashed changes
@@ -1834,11 +2069,15 @@ Wire Wire Line
 Text Label 8300 5400 2    50   ~ 0
 PA12
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 Wire Wire Line
 	5050 4100 4850 4100
 Wire Wire Line
 	5050 4200 4850 4200
 Text Label 4850 4100 0    50   ~ 0
+=======
+Text Label 6450 6000 0    50   ~ 0
+>>>>>>> Stashed changes
 =======
 Text Label 6450 6000 0    50   ~ 0
 >>>>>>> Stashed changes
@@ -1851,12 +2090,17 @@ Text Label 8300 4800 2    50   ~ 0
 PA6
 Wire Wire Line
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	6450 2600 7100 2600
 Wire Wire Line
 	6450 2500 7100 2500
 Wire Wire Line
 	6450 2700 6700 2700
 Text Label 6700 2700 2    50   ~ 0
+=======
+	8050 4600 8300 4600
+Text Label 8300 4600 2    50   ~ 0
+>>>>>>> Stashed changes
 =======
 	8050 4600 8300 4600
 Text Label 8300 4600 2    50   ~ 0
@@ -1892,8 +2136,13 @@ Text GLabel 5950 4100 0    50   Input ~ 0
 NRST
 Wire Wire Line
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	4600 2200 4350 2200
 Text GLabel 7150 3800 0    50   Input ~ 0
+=======
+	6200 4100 5950 4100
+Text GLabel 1400 6750 0    50   Input ~ 0
+>>>>>>> Stashed changes
 =======
 	6200 4100 5950 4100
 Text GLabel 1400 6750 0    50   Input ~ 0
@@ -1987,6 +2236,7 @@ Wire Wire Line
 Connection ~ 14300 4150
 Wire Wire Line
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	10400 1800 10150 1800
 Text Notes 7000 2850 0    50   ~ 0
 =======
@@ -2003,6 +2253,14 @@ Text Notes 9250 5600 0    50   ~ 0
 =======
 Text Notes 13550 5050 0    50   ~ 0
 >>>>>>> Stashed changes
+=======
+	14700 1050 14450 1050
+Text Notes 1300 4700 0    50   ~ 0
+Debug-liitin (UART)
+Text Notes 13700 3150 0    50   ~ 0
+Stepper-ohjain 1
+Text Notes 13550 5050 0    50   ~ 0
+>>>>>>> Stashed changes
 Nema14 liitin
 Text Notes 13600 2650 0    50   ~ 0
 Nema14 liitin
@@ -2014,6 +2272,7 @@ Text Label 6450 5900 0    50   ~ 0
 PC0
 Connection ~ 8250 2300
 Wire Wire Line
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 	8250 2800 8300 2800
 Wire Wire Line
@@ -2060,6 +2319,23 @@ NoConn ~ 11550 3650
 NoConn ~ 11500 5100
 Text Label 7650 3900 1    50   ~ 0
 VDDA
+=======
+	1250 3650 1300 3650
+NoConn ~ 11750 6650
+NoConn ~ 10750 6450
+NoConn ~ 11000 1450
+NoConn ~ 11000 2050
+NoConn ~ 11000 2150
+NoConn ~ 11000 2250
+NoConn ~ 12200 1450
+NoConn ~ 12200 1650
+NoConn ~ 12200 2150
+NoConn ~ 12200 2250
+NoConn ~ 11550 3650
+NoConn ~ 11500 5100
+Text Label 7650 3900 1    50   ~ 0
+VDDA
+>>>>>>> Stashed changes
 Wire Wire Line
 	1400 6750 1650 6750
 Text Notes 14250 3700 0    50   ~ 0
@@ -2086,9 +2362,15 @@ Text Notes 8750 6850 0    50   ~ 0
 I2C1
 Wire Wire Line
 	8050 4400 8300 4400
+<<<<<<< Updated upstream
 Wire Wire Line
 	8050 4500 8300 4500
 Wire Wire Line
+=======
+Wire Wire Line
+	8050 4500 8300 4500
+Wire Wire Line
+>>>>>>> Stashed changes
 	8050 5300 8300 5300
 Text Label 8300 5300 2    50   ~ 0
 PA11
@@ -2164,6 +2446,7 @@ F 2 "" H 1050 1050 50  0001 C CNN
 F 3 "" H 1050 1050 50  0001 C CNN
 	1    1050 1050
 	-1   0    0    1   
+<<<<<<< Updated upstream
 $EndComp
 Wire Wire Line
 	1650 2100 1650 2300
@@ -2301,6 +2584,145 @@ $EndComp
 Wire Wire Line
 	11350 5000 11500 5000
 $Comp
+=======
+$EndComp
+Wire Wire Line
+	1650 2100 1650 2300
+Wire Wire Line
+	1750 2100 1750 2300
+Wire Wire Line
+	1250 1700 1050 1700
+Wire Wire Line
+	1250 1800 1050 1800
+NoConn ~ 1250 1350
+Wire Wire Line
+	5950 2100 6000 2100
+Wire Wire Line
+	6000 2100 6000 1750
+Connection ~ 6000 1750
+Wire Wire Line
+	5650 2100 5600 2100
+Wire Wire Line
+	5600 2100 5600 1750
+NoConn ~ 11550 3150
+NoConn ~ 11500 4600
+Wire Wire Line
+	11550 3050 11300 3050
+Wire Wire Line
+	11500 4500 11250 4500
+Wire Wire Line
+	11350 6850 11350 7000
+Wire Wire Line
+	11350 7000 11250 7000
+Connection ~ 11250 7000
+Wire Wire Line
+	11250 7000 11250 7300
+Wire Wire Line
+	6200 4400 6200 4600
+Wire Wire Line
+	6200 4600 6250 4600
+$Comp
+L robotti_library:XT30 J3
+U 1 1 607FB2C4
+P 12150 8450
+F 0 "J3" H 12250 8150 50  0000 R CNN
+F 1 "XT30" H 12300 8250 50  0000 R CNN
+F 2 "Connector_AMASS:AMASS_XT30U-F_1x02_P5.0mm_Vertical" H 12150 8450 50  0001 C CNN
+F 3 "~" H 12150 8450 50  0001 C CNN
+	1    12150 8450
+	1    0    0    1   
+$EndComp
+Text GLabel 8750 6900 2    50   Input ~ 0
+SCL_VL53_A
+Text GLabel 8750 7400 2    50   Input ~ 0
+SCL_VL53_B
+Text GLabel 8750 7300 2    50   Input ~ 0
+SDA_VL53_B
+Wire Wire Line
+	11550 3350 11100 3350
+Wire Wire Line
+	11550 3250 11100 3250
+Text GLabel 11100 3250 0    50   Input ~ 0
+SCL_VL53_A
+Text GLabel 8750 7000 2    50   Input ~ 0
+SDA_VL53_A
+Text GLabel 11100 3350 0    50   Input ~ 0
+SDA_VL53_A
+Text GLabel 11050 4700 0    50   Input ~ 0
+SCL_VL53_B
+Text GLabel 11050 4800 0    50   Input ~ 0
+SDA_VL53_B
+Wire Wire Line
+	11050 4700 11500 4700
+Wire Wire Line
+	11500 4800 11050 4800
+Text GLabel 11300 3050 0    50   Input ~ 0
+VL53_INT_A
+Text GLabel 11250 4500 0    50   Input ~ 0
+VL53_INT_B
+Text GLabel 8300 5000 2    50   Input ~ 0
+VL53_INT_B
+Text GLabel 8300 5100 2    50   Input ~ 0
+VL53_INT_A
+$Comp
+L power:+3.3V #PWR?
+U 1 1 60CD5FBF
+P 10700 1250
+F 0 "#PWR?" H 10700 1100 50  0001 C CNN
+F 1 "+3.3V" H 10715 1423 50  0000 C CNN
+F 2 "" H 10700 1250 50  0001 C CNN
+F 3 "" H 10700 1250 50  0001 C CNN
+	1    10700 1250
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 60CEBC91
+P 5600 1150
+F 0 "#PWR?" H 5600 1000 50  0001 C CNN
+F 1 "+3.3V" H 5615 1323 50  0000 C CNN
+F 2 "" H 5600 1150 50  0001 C CNN
+F 3 "" H 5600 1150 50  0001 C CNN
+	1    5600 1150
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 60D07C1C
+P 14400 2600
+F 0 "#PWR?" H 14400 2450 50  0001 C CNN
+F 1 "+3.3V" V 14300 2650 50  0000 L CNN
+F 2 "" H 14400 2600 50  0001 C CNN
+F 3 "" H 14400 2600 50  0001 C CNN
+	1    14400 2600
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 60D0AEDF
+P 14500 4950
+F 0 "#PWR?" H 14500 4800 50  0001 C CNN
+F 1 "+3.3V" V 14400 5000 50  0000 L CNN
+F 2 "" H 14500 4950 50  0001 C CNN
+F 3 "" H 14500 4950 50  0001 C CNN
+	1    14500 4950
+	0    -1   -1   0   
+$EndComp
+$Comp
+L power:+3.3V #PWR?
+U 1 1 60D0D725
+P 11350 5000
+F 0 "#PWR?" H 11350 4850 50  0001 C CNN
+F 1 "+3.3V" V 11350 5100 50  0000 L CNN
+F 2 "" H 11350 5000 50  0001 C CNN
+F 3 "" H 11350 5000 50  0001 C CNN
+	1    11350 5000
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	11350 5000 11500 5000
+$Comp
+>>>>>>> Stashed changes
 L power:+3.3V #PWR?
 U 1 1 60D38AC5
 P 11400 3550
@@ -2403,6 +2825,7 @@ F 3 "" H 10700 6250 50  0001 C CNN
 	1    10700 6250
 	1    0    0    -1  
 $EndComp
+<<<<<<< Updated upstream
 Wire Wire Line
 	11250 6250 10700 6250
 Wire Wire Line
@@ -2506,6 +2929,111 @@ Wire Wire Line
 Wire Wire Line
 	12200 1950 12400 1950
 Wire Wire Line
+=======
+Wire Wire Line
+	11250 6250 10700 6250
+Wire Wire Line
+	10550 6250 10700 6250
+Connection ~ 10700 6250
+Wire Wire Line
+	10250 6250 10100 6250
+Wire Wire Line
+	10100 6250 10100 6550
+Connection ~ 10100 6550
+$Comp
+L power:+3.3V #PWR?
+U 1 1 60EBD01A
+P 1550 6350
+F 0 "#PWR?" H 1550 6200 50  0001 C CNN
+F 1 "+3.3V" V 1550 6450 50  0000 L CNN
+F 2 "" H 1550 6350 50  0001 C CNN
+F 3 "" H 1550 6350 50  0001 C CNN
+	1    1550 6350
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	3850 1450 4250 1450
+Connection ~ 3850 1450
+Text GLabel 4250 1450 2    50   Input ~ 0
+VCC_MEAS
+Text GLabel 6400 6000 0    50   Input ~ 0
+VCC_MEAS
+Text GLabel 4150 3600 2    50   Input ~ 0
+LED2
+Text GLabel 6400 6900 0    50   Input ~ 0
+LED2
+Text GLabel 4150 3300 2    50   Input ~ 0
+LED1
+Text GLabel 6400 7000 0    50   Input ~ 0
+LED1
+Wire Wire Line
+	6400 6900 6650 6900
+Wire Wire Line
+	6650 7000 6400 7000
+Text GLabel 4150 3900 2    50   Input ~ 0
+LED3
+Text GLabel 8300 5700 2    50   Input ~ 0
+LED3
+Text GLabel 8300 5600 2    50   Input ~ 0
+SWCLK
+Wire Wire Line
+	8050 5600 8300 5600
+Text GLabel 1400 6450 0    50   Input ~ 0
+SWCLK
+Wire Wire Line
+	1400 6450 1650 6450
+Text GLabel 1400 6650 0    50   Input ~ 0
+SWDIO
+Text GLabel 8300 5500 2    50   Input ~ 0
+SWDIO
+Wire Wire Line
+	8050 5500 8300 5500
+Wire Wire Line
+	1650 6650 1400 6650
+Text GLabel 1400 6850 0    50   Input ~ 0
+SWO
+Text GLabel 8300 6200 2    50   Input ~ 0
+SWO
+Wire Wire Line
+	8050 6200 8300 6200
+Wire Wire Line
+	1400 6850 1650 6850
+Text GLabel 12400 1750 2    50   Input ~ 0
+NSS_LORA
+Text GLabel 12400 1850 2    50   Input ~ 0
+MOSI_LORA
+Text GLabel 12400 1950 2    50   Input ~ 0
+MISO_LORA
+Text GLabel 12400 2050 2    50   Input ~ 0
+SCK_LORA
+Text GLabel 8300 7200 2    50   Input ~ 0
+SCK_LORA
+Wire Wire Line
+	8050 7300 8750 7300
+Wire Wire Line
+	8050 7400 8750 7400
+Wire Wire Line
+	8050 6900 8750 6900
+Wire Wire Line
+	8050 7000 8750 7000
+Text GLabel 6400 6100 0    50   Input ~ 0
+MISO_LORA
+Wire Wire Line
+	6400 6100 6650 6100
+Text GLabel 6400 6200 0    50   Input ~ 0
+MOSI_LORA
+Wire Wire Line
+	6400 6200 6650 6200
+Text GLabel 8300 6800 2    50   Input ~ 0
+NSS_LORA
+Wire Wire Line
+	12200 1750 12400 1750
+Wire Wire Line
+	12400 1850 12200 1850
+Wire Wire Line
+	12200 1950 12400 1950
+Wire Wire Line
+>>>>>>> Stashed changes
 	12400 2050 12200 2050
 $Comp
 L Device:C C12
@@ -2530,9 +3058,15 @@ Wire Wire Line
 	10300 1750 10850 1750
 Wire Wire Line
 	10700 1250 10700 1450
+<<<<<<< Updated upstream
 Wire Wire Line
 	10700 1550 11000 1550
 Wire Wire Line
+=======
+Wire Wire Line
+	10700 1550 11000 1550
+Wire Wire Line
+>>>>>>> Stashed changes
 	10650 1450 10700 1450
 Connection ~ 10700 1450
 Wire Wire Line
@@ -2710,5 +3244,8 @@ Wire Wire Line
 Wire Wire Line
 	7950 3200 7950 3400
 Connection ~ 7950 3400
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 $EndSCHEMATC
