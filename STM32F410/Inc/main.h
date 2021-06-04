@@ -58,6 +58,14 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define tmc2130_1_nss_Pin GPIO_PIN_4
+#define tmc2130_1_nss_GPIO_Port GPIOA
+#define tmc2130_1_dir_Pin GPIO_PIN_12
+#define tmc2130_1_dir_GPIO_Port GPIOB
+#define tmc2130_1_step_Pin GPIO_PIN_6
+#define tmc2130_1_step_GPIO_Port GPIOC
+#define tmc2130_1_enable_Pin GPIO_PIN_8
+#define tmc2130_1_enable_GPIO_Port GPIOC
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

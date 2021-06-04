@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include "retarget.h"
 #include "lora_sx1276.h"
+#include "tmc2130.h"
 
 /* USER CODE END Includes */
 
@@ -106,6 +107,7 @@ int main(void)
   RetargetInit(&huart6);
 
   lora_sx1276 lora;
+
   // SX1276 compatible module connected to SPI1, NSS pin connected to GPIO with label LORA_NSS
   uint8_t res = lora_init(&lora, &hspi2, GPIOB, GPIO_PIN_9, LORA_BASE_FREQUENCY_EU);
   if (res != LORA_OK) {
@@ -114,10 +116,19 @@ int main(void)
   }
   lora_mode_sleep(&lora);
   lora_mode_sleep(&lora);
+  lora_set_preamble_length(&lora, 10);
+  lora_set_spreading_factor(&lora, 7);
+  lora_set_signal_bandwidth(&lora, LORA_BANDWIDTH_125_KHZ);
+  lora_set_tx_power(&lora, 20);
   lora_set_crc(&lora, 1);
   lora_set_coding_rate(&lora, LORA_CODING_RATE_4_8);
   lora_mode_standby(&lora);
+  printf("lora init DONE\n");
 
+  tmc2130 stepper1;
+
+  tmc2130_init(&stepper1, &hspi1, GPIOC, GPIOB, GPIOC, GPIOA, 
+    tmc2130_1_enable_Pin, tmc2130_1_dir_Pin, tmc2130_1_step_Pin, GPIO_PIN_4);
 
   /* USER CODE END 2 */
 
@@ -128,21 +139,14 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    HAL_Delay(1000);
+
+
+
+
+   // HAL_Delay(5000);
     // Send packet can be as simple as
     // Receive buffer
-    uint8_t buffer[32];
-    // Put LoRa modem into continuous receive mode
-    //lora_mode_receive_continuous(&lora);
-    // Wait for packet up to 10sec
-    uint8_t res;
-    //uint8_t len = lora_receive_packet_blocking(&lora, buffer, sizeof(buffer), 10000, &res);
-    if (res != LORA_OK) {
-      // Receive failed
-    }
-    //buffer[len] = 0;  // null terminate string to print it
-    //printf("'%x'\n", buffer);
-    
+    //lora_receivetest(&lora);
     //uint8_t res = lora_send_packet(&lora, (uint8_t *)"INF", 3);
     //if (res != LORA_OK) {
     //  printf("Send fail: %d\n", res);
@@ -208,6 +212,21 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void lora_receivetest(lora_sx1276 *lora){
+    uint8_t buffer[32];
+    // Put LoRa modem into continuous receive mode
+    lora_mode_receive_continuous(lora);
+    // Wait for packet up to 10sec
+    uint8_t res;
+    uint8_t len = lora_receive_packet_blocking(lora, buffer, sizeof(buffer), 10000, &res);
+    if (res != LORA_OK) {
+      printf("Receive faile, code: %d\n", res);
+      // Receive failed
+    }
+    buffer[len] = 0;  // null terminate string to print it
+    printf("'%s'\n", buffer);
+    
+}
 
 /* USER CODE END 4 */
 
