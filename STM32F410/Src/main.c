@@ -29,6 +29,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include "retarget.h"
+#include "lora_sx1276.h"
 
 /* USER CODE END Includes */
 
@@ -99,7 +100,25 @@ int main(void)
   MX_SPI5_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
+  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
+
+  HAL_Delay(20);
   RetargetInit(&huart6);
+
+  lora_sx1276 lora;
+  // SX1276 compatible module connected to SPI1, NSS pin connected to GPIO with label LORA_NSS
+  uint8_t res = lora_init(&lora, &hspi2, GPIOB, GPIO_PIN_9, LORA_BASE_FREQUENCY_EU);
+  if (res != LORA_OK) {
+    // Initialization failed
+    printf("LOra ei init koodi: %d\n", res);
+  }
+  lora_mode_sleep(&lora);
+  lora_mode_sleep(&lora);
+  lora_set_crc(&lora, 1);
+  lora_set_coding_rate(&lora, LORA_CODING_RATE_4_8);
+  lora_mode_standby(&lora);
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -109,10 +128,26 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    char *asd = "penis";
     HAL_Delay(1000);
-    printf("penis");
-    HAL_UART_Transmit(&huart6, (uint8_t)asd, 5, 10000);
+    // Send packet can be as simple as
+    // Receive buffer
+    uint8_t buffer[32];
+    // Put LoRa modem into continuous receive mode
+    //lora_mode_receive_continuous(&lora);
+    // Wait for packet up to 10sec
+    uint8_t res;
+    //uint8_t len = lora_receive_packet_blocking(&lora, buffer, sizeof(buffer), 10000, &res);
+    if (res != LORA_OK) {
+      // Receive failed
+    }
+    //buffer[len] = 0;  // null terminate string to print it
+    //printf("'%x'\n", buffer);
+    
+    //uint8_t res = lora_send_packet(&lora, (uint8_t *)"INF", 3);
+    //if (res != LORA_OK) {
+    //  printf("Send fail: %d\n", res);
+      // Send failed
+    //}
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
 
@@ -137,13 +172,12 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 96;
+  RCC_OscInitStruct.PLL.PLLN = 192;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 4;
   RCC_OscInitStruct.PLL.PLLR = 2;
@@ -170,6 +204,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+  HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_SYSCLK, RCC_MCODIV_1);
 }
 
 /* USER CODE BEGIN 4 */
