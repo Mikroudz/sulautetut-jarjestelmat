@@ -46,10 +46,16 @@ static void write_register(tmc2130 *tmc, uint8_t address, uint8_t value)
   SET_BIT(address, WRITE_FLAG);
 
   // Reg address + its new value
-  uint16_t payload = (value << 8) | address;
+  //uint16_t payload = (value << 8) | address;
+
+  uint8_t payload [5] = {};
+
+  payload[0] = address;
+  payload[1] = value;
+
   // Start SPI transaction, send address + value
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_RESET);
-  uint32_t res = HAL_SPI_Transmit(tmc->spi, (uint8_t*)&payload, 2, tmc->spi_timeout);
+  uint32_t res = HAL_SPI_Transmit(tmc->spi, payload, 5, tmc->spi_timeout);
   // End SPI transaction
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_SET);
 
