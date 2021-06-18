@@ -101,3 +101,10 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
     printf("%x\n", reg_val);
     return 0;
 }
+
+uint32_t read_REG_GCONF(tmc2130 *tmc){
+  return read_register(tmc, REG_GCONF);
+}
+uint32_t read_REG_GSTAT(tmc2130 *tmc){
+  return read_register(tmc, REG_GSTAT);
+}

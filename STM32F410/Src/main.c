@@ -108,13 +108,12 @@ int main(void)
 
   lora_sx1276 lora;
 
-  // SX1276 compatible module connected to SPI1, NSS pin connected to GPIO with label LORA_NSS
+  // SX1276 compatible module connected to SPI2, NSS pin connected to GPIO with label LORA_NSS
   uint8_t res = lora_init(&lora, &hspi2, GPIOB, GPIO_PIN_9, LORA_BASE_FREQUENCY_EU);
   if (res != LORA_OK) {
     // Initialization failed
-    printf("LOra ei init koodi: %d\n", res);
+    printf("Lora ei init koodi: %d\n", res);
   }
-  lora_mode_sleep(&lora);
   lora_mode_sleep(&lora);
   lora_set_preamble_length(&lora, 10);
   lora_set_spreading_factor(&lora, 7);
@@ -126,9 +125,15 @@ int main(void)
   printf("lora init DONE\n");
 
   tmc2130 stepper1;
+  tmc2130 stepper2;
 
-  tmc2130_init(&stepper1, &hspi1, GPIOC, GPIOB, GPIOC, GPIOA, 
-    tmc2130_1_enable_Pin, tmc2130_1_dir_Pin, tmc2130_1_step_Pin, GPIO_PIN_4);
+  tmc2130_init(&stepper1, &hspi1,
+    tmc2130_1_enable_GPIO_Port, tmc2130_1_dir_GPIO_Port, tmc2130_1_step_GPIO_Port, tmc2130_1_nss_GPIO_Port, 
+    tmc2130_1_enable_Pin, tmc2130_1_dir_Pin, tmc2130_1_step_Pin, tmc2130_1_nss_Pin);
+  
+  tmc2130_init(&stepper2, &hspi5,
+    tmc2130_5_enable_GPIO_Port, tmc2130_5_dir_GPIO_Port, tmc2130_5_step_GPIO_Port, tmc2130_5_nss_GPIO_Port, 
+    tmc2130_5_enable_Pin, tmc2130_5_dir_Pin, tmc2130_5_step_Pin, tmc2130_5_nss_Pin);
 
   /* USER CODE END 2 */
 
@@ -140,10 +145,13 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
+    
+    printf("REG_GSTAT: 0x%x\n\r", read_REG_GSTAT(&stepper1));
 
 
 
-   // HAL_Delay(5000);
+
+    HAL_Delay(1000);
     // Send packet can be as simple as
     // Receive buffer
     //lora_receivetest(&lora);
