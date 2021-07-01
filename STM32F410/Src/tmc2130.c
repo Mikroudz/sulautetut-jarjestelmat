@@ -102,9 +102,28 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
     return 0;
 }
 
+void stepper_enable(tmc2130 *tmc){
+  HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_RESET);
+}
+
+void stepper_disable(tmc2130 *tmc){
+  HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_SET);
+}
+
+
 uint32_t read_REG_GCONF(tmc2130 *tmc){
-  return read_register(tmc, REG_GCONF);
+  return read_register(tmc, REG_GCONF) && 0x3f;
 }
 uint32_t read_REG_GSTAT(tmc2130 *tmc){
-  return read_register(tmc, REG_GSTAT);
+  return read_register(tmc, REG_GSTAT) && 0x07;
+}
+
+void write_IHOLD_RUN(tmc2130 *tmc, uint8_t ihold, uint8_t irun, uint8_t iholddelay) {
+  
+  uint32_t reg_value = 0;
+  reg_value |= (uint32_t) ihold;
+  reg_value |= (((uint32_t) irun) << 5);
+  reg_value |= (((uint32_t) iholddelay) << 10);
+
+  write_register(tmc, REG_IHOLD_IRUN, reg_value);
 }

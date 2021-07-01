@@ -35,5 +35,8 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
     );
 uint32_t read_REG_GCONF(tmc2130 *tmc);
 uint32_t read_REG_GSTAT(tmc2130 *tmc);
+void write_IHOLD_RUN(tmc2130 *tmc, uint8_t ihold, uint8_t irun, uint8_t iholddelay);
+void stepper_enable(tmc2130 *tmc);
+void stepper_disable(tmc2130 *tmc);
 
 #endif

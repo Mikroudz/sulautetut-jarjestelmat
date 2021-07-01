@@ -147,8 +147,17 @@ int main(void)
 
     
     printf("REG_GSTAT: 0x%x\n\r", read_REG_GSTAT(&stepper1));
-
-
+    printf("Stepper1 enable:\n\r");
+    stepper_enable(&stepper1);
+    HAL_Delay(1000);
+    printf("Stepper1 start:\n\r");
+    write_IHOLD_RUN(&stepper1, 10, 32, 10);
+    HAL_Delay(1000);
+    printf("Stepper1 stop:\n\r");
+    write_IHOLD_RUN(&stepper1, 0, 0, 10);
+    printf("Stepper1 disable:\n\r");
+    stepper_disable(&stepper1);
+    
 
 
     HAL_Delay(1000);
