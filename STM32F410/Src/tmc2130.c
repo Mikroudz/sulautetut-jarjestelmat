@@ -112,10 +112,10 @@ void stepper_disable(tmc2130 *tmc){
 
 
 uint32_t read_REG_GCONF(tmc2130 *tmc){
-  return read_register(tmc, REG_GCONF) && 0x3f;
+  return read_register(tmc, REG_GCONF) & 0x3f;
 }
 uint32_t read_REG_GSTAT(tmc2130 *tmc){
-  return read_register(tmc, REG_GSTAT) && 0x07;
+  return read_register(tmc, REG_GSTAT) & 0x07;
 }
 
 void write_IHOLD_RUN(tmc2130 *tmc, uint8_t ihold, uint8_t irun, uint8_t iholddelay) {
@@ -126,4 +126,8 @@ void write_IHOLD_RUN(tmc2130 *tmc, uint8_t ihold, uint8_t irun, uint8_t iholddel
   reg_value |= (((uint32_t) iholddelay) << 10);
 
   write_register(tmc, REG_IHOLD_IRUN, reg_value);
+}
+
+uint8_t read_IHOLD_RUN(tmc2130 *tmc){
+  return read_register(tmc, REG_IHOLD_IRUN);
 }
