@@ -172,6 +172,17 @@ static void read_fifo(lora_sx1276 *lora, uint8_t *buffer, uint8_t len, uint8_t m
   }
 }
 
+void lora_print_config(lora_sx1276 *lora){
+  uint8_t conf_1 = read_register(lora, REG_MODEM_CONFIG_1);
+  uint8_t conf_2 = read_register(lora, REG_MODEM_CONFIG_2);
+  uint8_t conf_3 = read_register(lora, REG_MODEM_CONFIG_3);
+
+  printf("0x%x\n",conf_1);
+  printf("0x%x\n",conf_2);
+  printf("0x%x\n",conf_3);
+
+}
+
 static void set_mode(lora_sx1276 *lora, uint8_t mode)
 {
   write_register(lora, REG_OP_MODE, OPMODE_LONG_RANGE_MODE | mode);

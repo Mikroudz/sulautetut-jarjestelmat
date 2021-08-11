@@ -94,7 +94,7 @@ uint8_t  lora_init(lora_sx1276 *lora, SPI_HandleTypeDef *spi, GPIO_TypeDef *nss_
 // Returns LoRa modem version number (usually 0x12)
 uint8_t  lora_version(lora_sx1276 *lora);
 
-
+void lora_print_config(lora_sx1276 *lora);
 // LORA mode selection //
 
 // Put radio into SLEEP mode:
