@@ -17,26 +17,34 @@
 #define I_scale_analog      (1 << 0)
 
 // Reads single register
-static uint8_t read_register(tmc2130 *tmc, uint8_t address)
+static uint32_t read_register(tmc2130 *tmc, uint8_t address)
 {
-  uint8_t value = 0;
+  uint8_t value[5] = {0};
 
   // 7bit controls read/write mode
   CLEAR_BIT(address, READ_FLAG);
 
+  uint8_t full_read[5] = {address, 0x0, 0x0, 0x0, 0x0};
+
   // Start SPI transaction
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_RESET);
   // Transmit reg address, then receive it value
-  uint32_t res1 = HAL_SPI_Transmit(tmc->spi, &address, 1, tmc->spi_timeout);
-  uint32_t res2 = HAL_SPI_Receive(tmc->spi, &value, 1, tmc->spi_timeout);
+  uint32_t res1 = HAL_SPI_Transmit(tmc->spi, full_read, 5, tmc->spi_timeout);
+  uint32_t res2 = HAL_SPI_Receive(tmc->spi, value, 5, tmc->spi_timeout);
   // End SPI transaction
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_SET);
+
+  uint32_t ret = value[1];
+  ret |= value[2];
+  ret |= value[3];
+  ret |= value[4];
+  //*gstat_val = value[0];
 
   if (res1 != HAL_OK || res2 != HAL_OK) {
     printf("SPI transmit/receive failed (%d %d)", res1, res2);
   }
 
-  return value;
+  return ret;
 }
 
 // Writes single register
@@ -110,9 +118,8 @@ void stepper_disable(tmc2130 *tmc){
   HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_SET);
 }
 
-
 uint32_t read_REG_GCONF(tmc2130 *tmc){
-  return read_register(tmc, REG_GCONF) & 0x3f;
+  return read_register(tmc, REG_GCONF) & 0xffff8000;
 }
 uint32_t read_REG_GSTAT(tmc2130 *tmc){
   return read_register(tmc, REG_GSTAT) & 0x07;
