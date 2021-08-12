@@ -44,6 +44,13 @@ static uint32_t read_register(tmc2130 *tmc, uint8_t address)
     printf("SPI transmit/receive failed (%d %d)", res1, res2);
   }
 
+  uint8_t i;
+  printf("Address: 0x%08x\n\r", address);
+  printf("Values:\n\r");
+  for (i = 0; i < 5; i++) {
+    printf("%d\n\r", value[i]);
+  }
+
   return ret;
 }
 
