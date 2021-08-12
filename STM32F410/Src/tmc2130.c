@@ -34,9 +34,9 @@ static uint32_t read_register(tmc2130 *tmc, uint8_t address)
   // End SPI transaction
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_SET);
 
-  uint32_t ret = value[1];
-  ret |= value[2];
-  ret |= value[3];
+  uint32_t ret = value[1] << 24;
+  ret |= value[2] << 16;
+  ret |= value[3] << 8;
   ret |= value[4];
   //*gstat_val = value[0];
 
