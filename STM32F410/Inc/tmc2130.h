@@ -39,5 +39,6 @@ void write_IHOLD_RUN(tmc2130 *tmc, uint8_t ihold, uint8_t irun, uint8_t iholddel
 uint8_t read_IHOLD_RUN(tmc2130 *tmc);
 void stepper_enable(tmc2130 *tmc);
 void stepper_disable(tmc2130 *tmc);
+void stepper_step(tmc2130 *tmc, unsigned int steps);
 
 #endif

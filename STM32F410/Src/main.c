@@ -155,16 +155,21 @@ int main(void)
 
 
     printf("Stepper1 enable:\n\r");
-    stepper_enable(&stepper1);
-    HAL_Delay(1000);
+  
     printf("Stepper1 start:\n\r");
-    write_IHOLD_RUN(&stepper1, 10, 32, 10);
+    write_IHOLD_RUN(&stepper1, 10, 20, 10);
     printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
     HAL_Delay(1000);
-    printf("Stepper1 stop:\n\r");
-    write_IHOLD_RUN(&stepper1, 0, 0, 10);
-    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
-    printf("Stepper1 disable:\n\r");
+    //printf("Stepper1 stop:\n\r");
+    //write_IHOLD_RUN(&stepper1, 0, 0, 10);
+    //printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
+    //printf("Stepper1 disable:\n\r");
+    stepper_enable(&stepper1);
+    HAL_Delay(100);
+    printf("Stepper1 run:\n\r");
+    stepper_step(&stepper1, 100);
+    HAL_Delay(1000);
+
     stepper_disable(&stepper1);
     
 

@@ -34,10 +34,10 @@ static uint32_t read_register(tmc2130 *tmc, uint8_t address)
   // End SPI transaction
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_SET);
 
-  uint32_t ret = value[1] << 24;
-  ret |= value[2] << 16;
-  ret |= value[3] << 8;
-  ret |= value[4];
+  uint32_t ret = (uint32_t)value[1] << 24;
+  ret |= (uint32_t)value[2] << 16;
+  ret |= (uint32_t)value[3] << 8;
+  ret |= (uint32_t)value[4];
   //*gstat_val = value[0];
 
   if (res1 != HAL_OK || res2 != HAL_OK) {
@@ -66,10 +66,10 @@ static void write_register(tmc2130 *tmc, uint8_t address, uint32_t value)
   uint8_t payload [5] = {};
 
   payload[0] = address;
-  payload[1] = value << 24;
-  payload[2] = value << 16;
-  payload[3] = value << 8;
-  payload[4] = value;
+  payload[1] = (uint8_t)value << 24;
+  payload[2] = (uint8_t)value << 16;
+  payload[3] = (uint8_t)value << 8;
+  payload[4] = (uint8_t)value;
 
   // Start SPI transaction, send address + value
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_RESET);
@@ -136,8 +136,8 @@ uint32_t read_REG_GSTAT(tmc2130 *tmc){
 }
 
 void write_CHOPCONF(tmc2130 *tmc){
-  uint32_t val = 0x00000100C3;
-  writie_register(tmc, REG_CHOPCONF, val);
+  uint32_t val = 0x000100C3;
+  write_register(tmc, REG_CHOPCONF, val);
 }
 
 uint32_t read_REG_CHOPCONF(tmc2130 *tmc){
@@ -156,4 +156,12 @@ void write_IHOLD_RUN(tmc2130 *tmc, uint8_t ihold, uint8_t irun, uint8_t iholddel
 
 uint8_t read_IHOLD_RUN(tmc2130 *tmc){
   return read_register(tmc, REG_IHOLD_IRUN);
+}
+
+void stepper_step(tmc2130 *tmc, unsigned int steps){
+  for(int i = 0; i < steps; i++){
+    HAL_GPIO_WritePin(tmc->step_port, tmc->step_pin, GPIO_PIN_SET);
+    HAL_Delay(10);
+    HAL_GPIO_WritePin(tmc->step_port, tmc->step_pin, GPIO_PIN_RESET);
+  }
 }
