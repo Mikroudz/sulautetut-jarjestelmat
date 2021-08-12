@@ -21,7 +21,7 @@ typedef struct {
 } tmc2130;
 
 // prototyypit
-static uint8_t read_register(tmc2130 *tmc, uint8_t address);
+static uint32_t read_register(tmc2130 *tmc, uint8_t address);
 static void write_register(tmc2130 *tmc, uint8_t address, uint8_t value);
 uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi, 
     GPIO_TypeDef *enable_port,

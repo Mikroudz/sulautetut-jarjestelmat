@@ -29,8 +29,8 @@ static uint32_t read_register(tmc2130 *tmc, uint8_t address)
   // Start SPI transaction
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_RESET);
   // Transmit reg address, then receive it value
-  uint32_t res1 = HAL_SPI_Transmit(tmc->spi, full_read, 5, tmc->spi_timeout);
-  uint32_t res2 = HAL_SPI_Receive(tmc->spi, value, 5, tmc->spi_timeout);
+  uint32_t res1 = HAL_SPI_Transmit(tmc->spi, (uint8_t *) full_read, 5, tmc->spi_timeout);
+  uint32_t res2 = HAL_SPI_Receive(tmc->spi, (uint8_t *) value, 5, tmc->spi_timeout);
   // End SPI transaction
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_SET);
 

@@ -146,17 +146,17 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
     
-    printf("REG_GSTAT: 0x%x\n\r", read_REG_GSTAT(&stepper1));
+    printf("REG_GCONF: 0x%08x\n\r", read_REG_GCONF(&stepper1));
     printf("Stepper1 enable:\n\r");
     stepper_enable(&stepper1);
     HAL_Delay(1000);
     printf("Stepper1 start:\n\r");
     write_IHOLD_RUN(&stepper1, 10, 32, 10);
-    printf("Read IHOLD_RUN: 0x%x\n\r", read_IHOLD_RUN(&stepper1));
+    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
     HAL_Delay(1000);
     printf("Stepper1 stop:\n\r");
     write_IHOLD_RUN(&stepper1, 0, 0, 10);
-    printf("Read IHOLD_RUN: 0x%x\n\r", read_IHOLD_RUN(&stepper1));
+    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
     printf("Stepper1 disable:\n\r");
     stepper_disable(&stepper1);
     
