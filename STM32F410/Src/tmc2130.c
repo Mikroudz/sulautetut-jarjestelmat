@@ -55,7 +55,7 @@ static uint32_t read_register(tmc2130 *tmc, uint8_t address)
 }
 
 // Writes single register
-static void write_register(tmc2130 *tmc, uint8_t address, uint8_t value)
+static void write_register(tmc2130 *tmc, uint8_t address, uint32_t value)
 {
   // 7bit controls read/write mode
   SET_BIT(address, WRITE_FLAG);
@@ -66,7 +66,10 @@ static void write_register(tmc2130 *tmc, uint8_t address, uint8_t value)
   uint8_t payload [5] = {};
 
   payload[0] = address;
-  payload[1] = value;
+  payload[1] = value << 24;
+  payload[2] = value << 16;
+  payload[3] = value << 8;
+  payload[4] = value;
 
   // Start SPI transaction, send address + value
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_RESET);
@@ -130,6 +133,15 @@ uint32_t read_REG_GCONF(tmc2130 *tmc){
 }
 uint32_t read_REG_GSTAT(tmc2130 *tmc){
   return read_register(tmc, REG_GSTAT) & 0x07;
+}
+
+void write_CHOPCONF(tmc2130 *tmc){
+  uint32_t val = 0x00000100C3;
+  writie_register(tmc, REG_CHOPCONF, val);
+}
+
+uint32_t read_REG_CHOPCONF(tmc2130 *tmc){
+  return read_register(tmc, REG_CHOPCONF);
 }
 
 void write_IHOLD_RUN(tmc2130 *tmc, uint8_t ihold, uint8_t irun, uint8_t iholddelay) {

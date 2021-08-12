@@ -146,7 +146,14 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
     
-    printf("REG_GCONF: 0x%08x\n\r", read_REG_GCONF(&stepper1));
+    printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
+    HAL_Delay(10);
+    write_CHOPCONF(&stepper1);
+    HAL_Delay(10);
+    printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
+
+
+
     printf("Stepper1 enable:\n\r");
     stepper_enable(&stepper1);
     HAL_Delay(1000);
