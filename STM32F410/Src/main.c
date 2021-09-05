@@ -22,13 +22,12 @@
 #include "fmpi2c.h"
 #include "i2c.h"
 #include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <stdio.h>
-#include "retarget.h"
 #include "lora_sx1276.h"
 #include "tmc2130.h"
 
@@ -100,6 +99,7 @@ int main(void)
   MX_SPI2_Init();
   MX_SPI5_Init();
   MX_USART6_UART_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
   HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
 
@@ -132,9 +132,31 @@ int main(void)
     tmc2130_1_enable_Pin, tmc2130_1_dir_Pin, tmc2130_1_step_Pin, tmc2130_1_nss_Pin);
   
   tmc2130_init(&stepper2, &hspi5,
-    tmc2130_5_enable_GPIO_Port, tmc2130_5_dir_GPIO_Port, tmc2130_5_step_GPIO_Port, tmc2130_5_nss_GPIO_Port, 
-    tmc2130_5_enable_Pin, tmc2130_5_dir_Pin, tmc2130_5_step_Pin, tmc2130_5_nss_Pin);
+    tmc2130_2_enable_GPIO_Port, tmc2130_2_dir_GPIO_Port, tmc2130_2_step_GPIO_Port, tmc2130_2_nss_GPIO_Port, 
+    tmc2130_2_enable_Pin, tmc2130_2_dir_Pin, tmc2130_2_step_Pin, tmc2130_2_nss_Pin);
 
+  stepper_disable(&stepper1);
+
+    //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
+    HAL_Delay(10);
+    write_CHOPCONF(&stepper1);
+    HAL_Delay(10);
+    //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
+
+
+    write_IHOLD_RUN(&stepper1, 10, 20, 10);
+    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
+    //    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
+    //printf("Read GSTAT: 0x%08x\n\r", read_REG_GSTAT(&stepper1));
+    //    printf("Read GSTAT: 0x%08x\n\r", read_REG_GSTAT(&stepper1));
+
+    HAL_Delay(1000);
+    //printf("Stepper1 stop:\n\r");
+    //write_IHOLD_RUN(&stepper1, 0, 0, 10);
+    //printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
+    //printf("Stepper1 disable:\n\r");
+    //stepper_enable(&stepper1);
+    HAL_Delay(100);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -146,35 +168,18 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
     
-    printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
-    HAL_Delay(10);
-    write_CHOPCONF(&stepper1);
-    HAL_Delay(10);
-    printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
-
-
-
-    printf("Stepper1 enable:\n\r");
-  
-    printf("Stepper1 start:\n\r");
-    write_IHOLD_RUN(&stepper1, 10, 20, 10);
-    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
+    
+    //printf("Stepper1 run:\n\r");
     HAL_Delay(1000);
-    //printf("Stepper1 stop:\n\r");
-    //write_IHOLD_RUN(&stepper1, 0, 0, 10);
-    //printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
-    //printf("Stepper1 disable:\n\r");
-    stepper_enable(&stepper1);
-    HAL_Delay(100);
-    printf("Stepper1 run:\n\r");
-    stepper_step(&stepper1, 100);
-    HAL_Delay(1000);
+    printf("Read GSTAT: 0x%x\n\r", read_REG_GSTAT(&stepper1));
 
-    stepper_disable(&stepper1);
     
 
-
+    HAL_TIM_Base_Stop_IT(&htim5);
     HAL_Delay(1000);
+    stepper_enable(&stepper1);
+    HAL_TIM_Base_Start_IT(&htim5);
+
     // Send packet can be as simple as
     // Receive buffer
     //lora_receivetest(&lora);
@@ -185,6 +190,7 @@ int main(void)
     //}
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
+    stepper_disable(&stepper1);
 
   }
   /* USER CODE END 3 */
@@ -258,6 +264,11 @@ void lora_receivetest(lora_sx1276 *lora){
     printf("'%s'\n", buffer);
     
 }
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim){
+  HAL_GPIO_TogglePin(tmc2130_1_step_GPIO_Port, tmc2130_1_step_Pin);
+}
+
 
 /* USER CODE END 4 */
 

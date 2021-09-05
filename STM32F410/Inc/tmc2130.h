@@ -3,6 +3,7 @@
 #define __TMC2130_H
 
 #include "main.h"
+#include <stdio.h>
 
 
 // Asetustruktuuri stepperille. Luo jokaiselle stepperille oma tälläinen
@@ -17,7 +18,7 @@ typedef struct {
     GPIO_TypeDef        *nss_port;
     uint16_t            nss_pin;
     uint16_t            spi_timeout;
-
+    uint8_t             gstat_val;
 } tmc2130;
 
 // prototyypit
@@ -34,9 +35,11 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
     uint16_t nss_pin
     );
 uint32_t read_REG_GCONF(tmc2130 *tmc);
-uint32_t read_REG_GSTAT(tmc2130 *tmc);
+uint8_t read_REG_GSTAT(tmc2130 *tmc);
 void write_IHOLD_RUN(tmc2130 *tmc, uint8_t ihold, uint8_t irun, uint8_t iholddelay);
-uint8_t read_IHOLD_RUN(tmc2130 *tmc);
+uint32_t read_IHOLD_RUN(tmc2130 *tmc);
+void write_CHOPCONF(tmc2130 *tmc);
+
 void stepper_enable(tmc2130 *tmc);
 void stepper_disable(tmc2130 *tmc);
 void stepper_step(tmc2130 *tmc, unsigned int steps);

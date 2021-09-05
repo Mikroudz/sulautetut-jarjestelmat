@@ -32,6 +32,8 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
+#include "retarget.h"
 
 /* USER CODE END Includes */
 
@@ -60,20 +62,24 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define tmc2130_1_nss_Pin GPIO_PIN_4
 #define tmc2130_1_nss_GPIO_Port GPIOA
-#define tmc2130_5_nss_Pin GPIO_PIN_2
-#define tmc2130_5_nss_GPIO_Port GPIOB
+#define tmc2130_2_nss_Pin GPIO_PIN_2
+#define tmc2130_2_nss_GPIO_Port GPIOB
 #define tmc2130_1_dir_Pin GPIO_PIN_12
 #define tmc2130_1_dir_GPIO_Port GPIOB
 #define tmc2130_1_step_Pin GPIO_PIN_6
 #define tmc2130_1_step_GPIO_Port GPIOC
 #define tmc2130_1_enable_Pin GPIO_PIN_8
 #define tmc2130_1_enable_GPIO_Port GPIOC
-#define tmc2130_5_enable_Pin GPIO_PIN_15
-#define tmc2130_5_enable_GPIO_Port GPIOA
-#define tmc2130_5_step_Pin GPIO_PIN_8
-#define tmc2130_5_step_GPIO_Port GPIOB
-#define tmc2130_5_dir_Pin GPIO_PIN_9
-#define tmc2130_5_dir_GPIO_Port GPIOB
+#define tmc2130_2_enable_Pin GPIO_PIN_15
+#define tmc2130_2_enable_GPIO_Port GPIOA
+#define IMU_I2C_SCL_Pin GPIO_PIN_6
+#define IMU_I2C_SCL_GPIO_Port GPIOB
+#define IMU_i2C_SDA_Pin GPIO_PIN_7
+#define IMU_i2C_SDA_GPIO_Port GPIOB
+#define tmc2130_2_step_Pin GPIO_PIN_8
+#define tmc2130_2_step_GPIO_Port GPIOB
+#define tmc2130_2_dir_Pin GPIO_PIN_9
+#define tmc2130_2_dir_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

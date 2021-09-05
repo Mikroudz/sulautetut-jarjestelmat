@@ -24,32 +24,25 @@ static uint32_t read_register(tmc2130 *tmc, uint8_t address)
   // 7bit controls read/write mode
   CLEAR_BIT(address, READ_FLAG);
 
-  uint8_t full_read[5] = {address, 0x0, 0x0, 0x0, 0x0};
+  uint8_t txdata[5] = {address, 0x0, 0x0, 0x0, 0x0};
 
   // Start SPI transaction
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_RESET);
   // Transmit reg address, then receive it value
-  uint32_t res1 = HAL_SPI_Transmit(tmc->spi, (uint8_t *) full_read, 5, tmc->spi_timeout);
-  uint32_t res2 = HAL_SPI_Receive(tmc->spi, (uint8_t *) value, 5, tmc->spi_timeout);
+  uint32_t res2 = HAL_SPI_TransmitReceive(tmc->spi, (uint8_t *) txdata, (uint8_t *) value, 5, tmc->spi_timeout);
   // End SPI transaction
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_SET);
 
-  uint32_t ret = (uint32_t)value[1] << 24;
-  ret |= (uint32_t)value[2] << 16;
-  ret |= (uint32_t)value[3] << 8;
-  ret |= (uint32_t)value[4];
-  //*gstat_val = value[0];
+  uint32_t ret = (value[1] << 24) | (value[2] << 16) | (value[3] << 8) | value[4];
 
-  if (res1 != HAL_OK || res2 != HAL_OK) {
-    printf("SPI transmit/receive failed (%d %d)", res1, res2);
-  }
+  tmc->gstat_val = value[0];
 
   uint8_t i;
-  printf("Address: 0x%08x\n\r", address);
-  printf("Values:\n\r");
-  for (i = 0; i < 5; i++) {
-    printf("%d\n\r", value[i]);
-  }
+  //printf("Read address: 0x%08x\n\r", address);
+  //printf("Values:\n\r");
+  //for (i = 0; i < 5; i++) {
+  //  printf("%d\n\r", value[i]);
+  //}
 
   return ret;
 }
@@ -66,9 +59,9 @@ static void write_register(tmc2130 *tmc, uint8_t address, uint32_t value)
   uint8_t payload [5] = {};
 
   payload[0] = address;
-  payload[1] = (uint8_t)value << 24;
-  payload[2] = (uint8_t)value << 16;
-  payload[3] = (uint8_t)value << 8;
+  payload[1] = (uint8_t)(value >> 24);
+  payload[2] = (uint8_t)(value >> 16);
+  payload[3] = (uint8_t)(value >> 8);
   payload[4] = (uint8_t)value;
 
   // Start SPI transaction, send address + value
@@ -76,7 +69,10 @@ static void write_register(tmc2130 *tmc, uint8_t address, uint32_t value)
   uint32_t res = HAL_SPI_Transmit(tmc->spi, payload, 5, tmc->spi_timeout);
   // End SPI transaction
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_SET);
-
+  printf("Data sent:\n");
+  for (int i = 0; i < 5; i++) {
+    printf("%d\n\r", payload[i]);
+  }
   if (res != HAL_OK) {
     printf("SPI transmit failed: %d", res);
   }
@@ -131,8 +127,9 @@ void stepper_disable(tmc2130 *tmc){
 uint32_t read_REG_GCONF(tmc2130 *tmc){
   return read_register(tmc, REG_GCONF) & 0xffff8000;
 }
-uint32_t read_REG_GSTAT(tmc2130 *tmc){
-  return read_register(tmc, REG_GSTAT) & 0x07;
+uint8_t read_REG_GSTAT(tmc2130 *tmc){
+  read_register(tmc, REG_DRVSTATUS);
+  return  tmc->gstat_val;//& 0x07;
 }
 
 void write_CHOPCONF(tmc2130 *tmc){
@@ -150,11 +147,12 @@ void write_IHOLD_RUN(tmc2130 *tmc, uint8_t ihold, uint8_t irun, uint8_t iholddel
   reg_value |= (uint32_t) ihold;
   reg_value |= (((uint32_t) irun) << 5);
   reg_value |= (((uint32_t) iholddelay) << 10);
+  printf("Ihold written: 0x%08x\n", reg_value);
 
   write_register(tmc, REG_IHOLD_IRUN, reg_value);
 }
 
-uint8_t read_IHOLD_RUN(tmc2130 *tmc){
+uint32_t read_IHOLD_RUN(tmc2130 *tmc){
   return read_register(tmc, REG_IHOLD_IRUN);
 }
 
