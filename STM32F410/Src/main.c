@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
 #include "fmpi2c.h"
 #include "i2c.h"
 #include "spi.h"
@@ -30,6 +31,7 @@
 /* USER CODE BEGIN Includes */
 #include "lora_sx1276.h"
 #include "tmc2130.h"
+#include "bmx160.h"
 
 /* USER CODE END Includes */
 
@@ -40,6 +42,15 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+// Imu tilat
+#define IMU_DATA_PENDING 1
+#define IMU_DATA_READY 2
+
+// LoRa status
+#define LORA_RX_DATA_PENDING 1
+#define LORA_RX_DATA_READY 2
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -50,7 +61,8 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+uint8_t imu_data_status = IMU_DATA_PENDING;
+uint8_t lora_rx_status = LORA_RX_DATA_PENDING;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -92,6 +104,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_FMPI2C1_Init();
   MX_I2C1_Init();
   MX_I2C2_Init();
@@ -102,6 +115,7 @@ int main(void)
   MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
   HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
 
   HAL_Delay(20);
   RetargetInit(&huart6);
@@ -113,16 +127,8 @@ int main(void)
   if (res != LORA_OK) {
     // Initialization failed
     printf("Lora ei init koodi: %d\n", res);
-  }
-  lora_mode_sleep(&lora);
-  lora_set_preamble_length(&lora, 10);
-  lora_set_spreading_factor(&lora, 7);
-  lora_set_signal_bandwidth(&lora, LORA_BANDWIDTH_125_KHZ);
-  lora_set_tx_power(&lora, 20);
-  lora_set_crc(&lora, 1);
-  lora_set_coding_rate(&lora, LORA_CODING_RATE_4_8);
-  lora_mode_standby(&lora);
-  printf("lora init DONE\n");
+  }else
+    printf("lora init DONE\n");
 
   tmc2130 stepper1;
   tmc2130 stepper2;
@@ -130,55 +136,70 @@ int main(void)
   tmc2130_init(&stepper1, &hspi1,
     tmc2130_1_enable_GPIO_Port, tmc2130_1_dir_GPIO_Port, tmc2130_1_step_GPIO_Port, tmc2130_1_nss_GPIO_Port, 
     tmc2130_1_enable_Pin, tmc2130_1_dir_Pin, tmc2130_1_step_Pin, tmc2130_1_nss_Pin);
+
+  bmx160 imu;
+  bmx160_init(&imu, &hi2c1, GPIOA, GPIO_PIN_8);
   
-  tmc2130_init(&stepper2, &hspi5,
-    tmc2130_2_enable_GPIO_Port, tmc2130_2_dir_GPIO_Port, tmc2130_2_step_GPIO_Port, tmc2130_2_nss_GPIO_Port, 
-    tmc2130_2_enable_Pin, tmc2130_2_dir_Pin, tmc2130_2_step_Pin, tmc2130_2_nss_Pin);
-
-  stepper_disable(&stepper1);
-
-    //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
-    HAL_Delay(10);
-    write_CHOPCONF(&stepper1);
-    HAL_Delay(10);
-    //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
+  //tmc2130_init(&stepper2, &hspi5,
+  //  tmc2130_2_enable_GPIO_Port, tmc2130_2_dir_GPIO_Port, tmc2130_2_step_GPIO_Port, tmc2130_2_nss_GPIO_Port, 
+  //  tmc2130_2_enable_Pin, tmc2130_2_dir_Pin, tmc2130_2_step_Pin, tmc2130_2_nss_Pin);
 
 
-    write_IHOLD_RUN(&stepper1, 10, 20, 10);
-    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
-    //    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
-    //printf("Read GSTAT: 0x%08x\n\r", read_REG_GSTAT(&stepper1));
-    //    printf("Read GSTAT: 0x%08x\n\r", read_REG_GSTAT(&stepper1));
+  //**** LORA RECEIVE START ****//
 
-    HAL_Delay(1000);
-    //printf("Stepper1 stop:\n\r");
-    //write_IHOLD_RUN(&stepper1, 0, 0, 10);
-    //printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
-    //printf("Stepper1 disable:\n\r");
+  uint8_t lora_rx_buffer[128];
+
+  // interrupt on receive
+  lora_enable_interrupt_rx_done(&lora);
+  // Put LoRa modem into continuous receive mode
+  lora_mode_receive_continuous(&lora);
+
+  HAL_Delay(1000);
+  
     //stepper_enable(&stepper1);
-    HAL_Delay(100);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+  while (1){
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 
-    
-    
-    //printf("Stepper1 run:\n\r");
-    HAL_Delay(1000);
-    printf("Read GSTAT: 0x%x\n\r", read_REG_GSTAT(&stepper1));
+    //HAL_Delay(1000);
+    if(imu_data_status == IMU_DATA_READY){
+      imu_end_update(&imu);
+      imu_data_status = IMU_DATA_PENDING;
+    }
 
-    
+    if(lora_rx_status == LORA_RX_DATA_READY){
+      // LoRa receive check
+      // Wait for packet up to 10sec
+      uint8_t res;
+      uint8_t len = lora_receive_packet_dma_start(&lora, lora_rx_buffer, sizeof(lora_rx_buffer), &res);
+
+      //uint8_t len = lora_receive_packet_blocking(lora, buffer, sizeof(buffer), 10000, &res);
+      if (res != LORA_OK) {
+        printf("Receive faile, code: %d\n", res);
+        // Receive failed
+      }
+      lora_rx_buffer[len] = 0;  // null terminate string to print it
+      printf("'%s'\n", lora_rx_buffer);
+      lora_rx_status = LORA_RX_DATA_PENDING;
+    }
+
+   // HAL_Delay(1000);
+    //printf("Read DRVreg: 0x%x\n\r", read_REG_DRVSTATUS(&stepper1));
+    //printf("GSTAT val: 0x%x\n", read_REG_GSTAT(&stepper1));
 
     HAL_TIM_Base_Stop_IT(&htim5);
-    HAL_Delay(1000);
-    stepper_enable(&stepper1);
+    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_10);
+
+    HAL_Delay(100);
+    //stepper_enable(&stepper1);
     HAL_TIM_Base_Start_IT(&htim5);
+    imu_start_update(&imu);
 
     // Send packet can be as simple as
     // Receive buffer
@@ -189,8 +210,8 @@ int main(void)
       // Send failed
     //}
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_12);
-    stepper_disable(&stepper1);
+
+    //stepper_disable(&stepper1);
 
   }
   /* USER CODE END 3 */
@@ -213,15 +234,16 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = 8;
   RCC_OscInitStruct.PLL.PLLN = 192;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV4;
   RCC_OscInitStruct.PLL.PLLQ = 4;
-  RCC_OscInitStruct.PLL.PLLR = 2;
+  RCC_OscInitStruct.PLL.PLLR = 4;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -245,6 +267,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+  HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI, RCC_MCODIV_1);
   HAL_RCC_MCOConfig(RCC_MCO2, RCC_MCO2SOURCE_SYSCLK, RCC_MCODIV_1);
 }
 
@@ -255,7 +278,9 @@ void lora_receivetest(lora_sx1276 *lora){
     lora_mode_receive_continuous(lora);
     // Wait for packet up to 10sec
     uint8_t res;
-    uint8_t len = lora_receive_packet_blocking(lora, buffer, sizeof(buffer), 10000, &res);
+    uint8_t len = lora_receive_packet_dma_start(lora, buffer, sizeof(buffer), &res);
+
+    //uint8_t len = lora_receive_packet_blocking(lora, buffer, sizeof(buffer), 10000, &res);
     if (res != LORA_OK) {
       printf("Receive faile, code: %d\n", res);
       // Receive failed
@@ -265,10 +290,33 @@ void lora_receivetest(lora_sx1276 *lora){
     
 }
 
+// tim 5 callback. Käytetään steppaukseen
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim){
   HAL_GPIO_TogglePin(tmc2130_1_step_GPIO_Port, tmc2130_1_step_Pin);
 }
 
+// pin ch 5-9 callback. Loralle
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+  if(GPIO_Pin == lora_int_Pin){
+    lora_rx_status = LORA_RX_DATA_READY;
+  }
+}
+
+// i2c dma callback imulle
+// FYI myös eventit pitää olla I2C:lle päällä cubemx:Stä että tää toimii
+void HAL_I2C_MasterRxCpltCallback (I2C_HandleTypeDef * hi2c){
+  //if (hi2c->Instance==hi2c1.Instance){ 
+  //   HAL_DMA_Abort_IT(hi2c->hdmarx);
+  // }
+  imu_data_status = IMU_DATA_READY;
+}
+
+
+// LoRa SPI callback RX done
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
+  //if(hspi->Instance == )
+  lora_rx_status = LORA_RX_DATA_READY;
+}
 
 /* USER CODE END 4 */
 

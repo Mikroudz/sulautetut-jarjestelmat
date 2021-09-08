@@ -72,6 +72,13 @@ void Error_Handler(void);
 #define tmc2130_1_enable_GPIO_Port GPIOC
 #define tmc2130_2_enable_Pin GPIO_PIN_15
 #define tmc2130_2_enable_GPIO_Port GPIOA
+#define lora_rx_enable_Pin GPIO_PIN_12
+#define lora_rx_enable_GPIO_Port GPIOC
+#define lora_tx_enable_Pin GPIO_PIN_4
+#define lora_tx_enable_GPIO_Port GPIOB
+#define lora_int_Pin GPIO_PIN_5
+#define lora_int_GPIO_Port GPIOB
+#define lora_int_EXTI_IRQn EXTI9_5_IRQn
 #define IMU_I2C_SCL_Pin GPIO_PIN_6
 #define IMU_I2C_SCL_GPIO_Port GPIOB
 #define IMU_i2C_SDA_Pin GPIO_PIN_7
