@@ -691,8 +691,8 @@ uint8_t lora_init(lora_sx1276 *lora, SPI_HandleTypeDef *spi, GPIO_TypeDef *nss_p
   lora->spi_timeout = LORA_DEFAULT_SPI_TIMEOUT;
   
   // reset Tx/Rx mode to rx
-  HAL_GPIO_WritePin(lora_rx_enable_GPIO_Port, lora_rx_enable_Pin, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(lora_tx_enable_GPIO_Port, lora_tx_enable_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(lora_rx_enable_GPIO_Port, lora_rx_enable_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(lora_tx_enable_GPIO_Port, lora_tx_enable_Pin, GPIO_PIN_SET);
 
   // Check version
   uint8_t ver = lora_version(lora);
@@ -711,7 +711,7 @@ uint8_t lora_init(lora_sx1276 *lora, SPI_HandleTypeDef *spi, GPIO_TypeDef *nss_p
   lora_set_spreading_factor(lora, LORA_DEFAULT_SF);
   lora_set_preamble_length(lora, LORA_DEFAULT_PREAMBLE_LEN);
   lora_set_signal_bandwidth(lora, LORA_BANDWIDTH_125_KHZ);
-  lora_set_crc(lora, 1);
+  lora_set_crc(lora, 0);
   lora_set_coding_rate(lora, LORA_CODING_RATE_4_8);
 
   // By default - explicit header mode

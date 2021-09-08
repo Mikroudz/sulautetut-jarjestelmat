@@ -179,13 +179,22 @@ int main(void)
       uint8_t res;
       uint8_t len = lora_receive_packet_dma_start(&lora, lora_rx_buffer, sizeof(lora_rx_buffer), &res);
 
-      //uint8_t len = lora_receive_packet_blocking(lora, buffer, sizeof(buffer), 10000, &res);
+      //uint8_t len = lora_receive_packet_blocking(&lora, lora_rx_buffer, sizeof(lora_rx_buffer), 10000, &res);
       if (res != LORA_OK) {
         printf("Receive faile, code: %d\n", res);
         // Receive failed
       }
       lora_rx_buffer[len] = 0;  // null terminate string to print it
-      printf("'%s'\n", lora_rx_buffer);
+      printf("Lora buff len: %d\n", len);
+      printf("Lora RSSI: %d\n", lora_packet_rssi(&lora));
+      printf("Lora SNR: %d\n", lora_packet_snr(&lora));
+
+      for(int i = 0; i < len; i++){
+        printf("0x%x ", lora_rx_buffer[i]);
+      }
+      printf("\n");
+      
+     // printf("'%s'\n", lora_rx_buffer);
       lora_rx_status = LORA_RX_DATA_PENDING;
     }
 
@@ -199,7 +208,7 @@ int main(void)
     HAL_Delay(100);
     //stepper_enable(&stepper1);
     HAL_TIM_Base_Start_IT(&htim5);
-    imu_start_update(&imu);
+    //imu_start_update(&imu);
 
     // Send packet can be as simple as
     // Receive buffer
@@ -315,7 +324,7 @@ void HAL_I2C_MasterRxCpltCallback (I2C_HandleTypeDef * hi2c){
 // LoRa SPI callback RX done
 void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
   //if(hspi->Instance == )
-  lora_rx_status = LORA_RX_DATA_READY;
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
 }
 
 /* USER CODE END 4 */
