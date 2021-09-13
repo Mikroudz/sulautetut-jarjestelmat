@@ -19,18 +19,30 @@
 // Reads single register
 static uint32_t read_register(tmc2130 *tmc, uint8_t address)
 {
-  uint8_t value[5] = {0};
+  //uint8_t value[5] = {0};
 
   // 7bit controls read/write mode
   CLEAR_BIT(address, READ_FLAG);
 
-  uint8_t txdata[5] = {address, 0x0, 0x0, 0x0, 0x0};
+  uint8_t value[5] = {address, 0x0, 0x0, 0x0, 0x0};
+  uint8_t dummy[5] = {address, 0x0, 0x0, 0x0, 0x0};
+
+  // Cleear old SPI reply so we can read any register now
+  HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_RESET);
+
+  // Read dummy
+  HAL_SPI_Transmit(tmc->spi, (uint8_t *) dummy, 5, 1000);
+
+  // End SPI transaction
+  HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_SET);
 
   // Start SPI transaction
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_RESET);
 
   // Transmit reg address, then receive it value
-  uint32_t res2 = HAL_SPI_TransmitReceive(tmc->spi, (uint8_t *) txdata, (uint8_t *) value, 5, tmc->spi_timeout);
+  HAL_SPI_Receive(tmc->spi, (uint8_t *) value, 5, 1000);
+
+  //HAL_StatusTypeDef res2 = HAL_SPI_TransmitReceive(tmc->spi, (uint8_t *) txdata, (uint8_t *) value, 5, tmc->spi_timeout);
   // End SPI transaction
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_SET);
 
@@ -58,6 +70,7 @@ static void write_register(tmc2130 *tmc, uint8_t address, uint32_t value)
   //uint16_t payload = (value << 8) | address;
 
   uint8_t payload [5] = {0};
+  
   HAL_SPI_Transmit(tmc->spi, (uint8_t *) payload, 5, tmc->spi_timeout);
 
   payload[0] = address;
@@ -71,7 +84,7 @@ static void write_register(tmc2130 *tmc, uint8_t address, uint32_t value)
   uint32_t res = HAL_SPI_Transmit(tmc->spi, payload, 5, tmc->spi_timeout);
   // End SPI transaction
   HAL_GPIO_WritePin(tmc->nss_port, tmc->nss_pin, GPIO_PIN_SET);
-  printf("Data sent:\n");
+  //printf("Data sent:\n");
   //for (int i = 0; i < 5; i++) {
   //  printf("%d\n\r", payload[i]);
   //}
@@ -110,19 +123,16 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
 
   //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
   write_GCONF(tmc);
-  write_IHOLD_RUN(tmc, 5, 31, 10);
+  write_IHOLD_RUN(tmc, 12, 12, 0);
   write_CHOPCONF(tmc);
 
   //    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
-  printf("Read GSTAT: 0x%x\n\r", read_REG_GSTAT(tmc));
-  printf("Read GSTAT: 0x%x\n\r", read_REG_GSTAT(tmc));
+  //printf("Read GSTAT: 0x%x\n\r", read_REG_GSTAT(tmc));
   //    printf("Read GSTAT: 0x%08x\n\r", read_REG_GSTAT(&stepper1));
   printf("Read CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(tmc));
-  printf("Read CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(tmc));
-
-  printf("Read IHOLD: 0x%08x\n\r", read_IHOLD_RUN(tmc));
-  printf("Read IHOLD: 0x%08x\n\r", read_IHOLD_RUN(tmc));
-
+  printf("Read GCONF: 0x%08x\n\r", read_REG_GCONF(tmc));
+  printf("Read DRVSTATUS: 0x%08x\n\r", read_REG_DRVSTATUS(tmc));
+  printf("Read GSTAT: 0x%x\n\r", tmc->gstat_val);
 
   return 0;
 }
@@ -136,15 +146,15 @@ void stepper_set_dir(tmc2130 *tmc, StepDir dir){
 }
 
 void stepper_enable(tmc2130 *tmc){
-  HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_RESET);
-}
-
-void stepper_disable(tmc2130 *tmc){
   HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_SET);
 }
 
+void stepper_disable(tmc2130 *tmc){
+  HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_RESET);
+}
+
 uint32_t read_REG_GCONF(tmc2130 *tmc){
-  return read_register(tmc, REG_GCONF) & 0xffff8000;
+  return read_register(tmc, REG_GCONF);// & 0xffff8000;
 }
 
 uint8_t read_REG_GSTAT(tmc2130 *tmc){
@@ -186,10 +196,6 @@ void write_GCONF(tmc2130 *tmc){
   printf("GCONF written: 0x%08x\n", reg_value);
 
   write_register(tmc, REG_GCONF, reg_value);
-}
-
-uint32_t read_IHOLD_RUN(tmc2130 *tmc){
-  return read_register(tmc, REG_IHOLD_IRUN);
 }
 
 void stepper_step(tmc2130 *tmc, unsigned int steps){

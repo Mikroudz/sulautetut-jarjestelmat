@@ -55,18 +55,15 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(tmc2130_1_nss_GPIO_Port, tmc2130_1_nss_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4|GPIO_PIN_5|tmc2130_1_step_Pin|GPIO_PIN_10
-                          |GPIO_PIN_11|lora_rx_enable_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4|GPIO_PIN_5|tmc2130_1_step_Pin|tmc2130_1_enable_Pin
+                          |GPIO_PIN_10|GPIO_PIN_11|lora_rx_enable_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, tmc2130_2_nss_Pin|tmc2130_1_dir_Pin|lora_tx_enable_Pin|tmc2130_2_step_Pin
-                          |tmc2130_2_dir_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, tmc2130_2_nss_Pin|tmc2130_2_enable_Pin|tmc2130_1_dir_Pin|lora_tx_enable_Pin
+                          |tmc2130_2_step_Pin|tmc2130_2_dir_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(tmc2130_1_enable_GPIO_Port, tmc2130_1_enable_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(tmc2130_2_enable_GPIO_Port, tmc2130_2_enable_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pins : PC13 PC14 PC1 */
   GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_1;
@@ -75,7 +72,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PAPin PAPin */
-  GPIO_InitStruct.Pin = tmc2130_1_nss_Pin|tmc2130_2_enable_Pin;
+  GPIO_InitStruct.Pin = tmc2130_1_nss_Pin|LED3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -91,9 +88,9 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin PBPin PBPin
-                           PBPin */
-  GPIO_InitStruct.Pin = tmc2130_2_nss_Pin|tmc2130_1_dir_Pin|lora_tx_enable_Pin|tmc2130_2_step_Pin
-                          |tmc2130_2_dir_Pin;
+                           PBPin PBPin */
+  GPIO_InitStruct.Pin = tmc2130_2_nss_Pin|tmc2130_2_enable_Pin|tmc2130_1_dir_Pin|lora_tx_enable_Pin
+                          |tmc2130_2_step_Pin|tmc2130_2_dir_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

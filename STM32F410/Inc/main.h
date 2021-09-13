@@ -62,16 +62,18 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define tmc2130_1_nss_Pin GPIO_PIN_4
 #define tmc2130_1_nss_GPIO_Port GPIOA
-#define tmc2130_2_nss_Pin GPIO_PIN_2
+#define tmc2130_2_nss_Pin GPIO_PIN_1
 #define tmc2130_2_nss_GPIO_Port GPIOB
+#define tmc2130_2_enable_Pin GPIO_PIN_2
+#define tmc2130_2_enable_GPIO_Port GPIOB
 #define tmc2130_1_dir_Pin GPIO_PIN_12
 #define tmc2130_1_dir_GPIO_Port GPIOB
 #define tmc2130_1_step_Pin GPIO_PIN_6
 #define tmc2130_1_step_GPIO_Port GPIOC
 #define tmc2130_1_enable_Pin GPIO_PIN_8
 #define tmc2130_1_enable_GPIO_Port GPIOC
-#define tmc2130_2_enable_Pin GPIO_PIN_15
-#define tmc2130_2_enable_GPIO_Port GPIOA
+#define LED3_Pin GPIO_PIN_15
+#define LED3_GPIO_Port GPIOA
 #define lora_rx_enable_Pin GPIO_PIN_12
 #define lora_rx_enable_GPIO_Port GPIOC
 #define lora_tx_enable_Pin GPIO_PIN_4

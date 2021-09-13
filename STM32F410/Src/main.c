@@ -133,30 +133,30 @@ int main(void)
   tmc2130 stepper1;
   tmc2130 stepper2;
 
-  tmc2130_init(&stepper1, &hspi1,
-    tmc2130_1_enable_GPIO_Port, tmc2130_1_dir_GPIO_Port, tmc2130_1_step_GPIO_Port, tmc2130_1_nss_GPIO_Port, 
-    tmc2130_1_enable_Pin, tmc2130_1_dir_Pin, tmc2130_1_step_Pin, tmc2130_1_nss_Pin);
+  //tmc2130_init(&stepper1, &hspi1,
+  //  tmc2130_1_enable_GPIO_Port, tmc2130_1_dir_GPIO_Port, tmc2130_1_step_GPIO_Port, tmc2130_1_nss_GPIO_Port, 
+  //  tmc2130_1_enable_Pin, tmc2130_1_dir_Pin, tmc2130_1_step_Pin, tmc2130_1_nss_Pin);
 
   bmx160 imu;
   bmx160_init(&imu, &hi2c1, GPIOA, GPIO_PIN_8);
   
-  //tmc2130_init(&stepper2, &hspi5,
-  //  tmc2130_2_enable_GPIO_Port, tmc2130_2_dir_GPIO_Port, tmc2130_2_step_GPIO_Port, tmc2130_2_nss_GPIO_Port, 
-  //  tmc2130_2_enable_Pin, tmc2130_2_dir_Pin, tmc2130_2_step_Pin, tmc2130_2_nss_Pin);
+  tmc2130_init(&stepper2, &hspi5,
+    tmc2130_2_enable_GPIO_Port, tmc2130_2_dir_GPIO_Port, tmc2130_2_step_GPIO_Port, tmc2130_2_nss_GPIO_Port, 
+    tmc2130_2_enable_Pin, tmc2130_2_dir_Pin, tmc2130_2_step_Pin, tmc2130_2_nss_Pin);
 
 
   //**** LORA RECEIVE START ****//
-
   uint8_t lora_rx_buffer[128];
-
   // interrupt on receive
   lora_enable_interrupt_rx_done(&lora);
   // Put LoRa modem into continuous receive mode
   lora_mode_receive_continuous(&lora);
 
+  //**** LORA RECEIVE END ****//
+
   HAL_Delay(1000);
   
-    //stepper_enable(&stepper1);
+  stepper_enable(&stepper2);
 
   /* USER CODE END 2 */
 
@@ -198,14 +198,14 @@ int main(void)
       lora_rx_status = LORA_RX_DATA_PENDING;
     }
 
-   // HAL_Delay(1000);
+    HAL_Delay(1000);
     //printf("Read DRVreg: 0x%x\n\r", read_REG_DRVSTATUS(&stepper1));
     //printf("GSTAT val: 0x%x\n", read_REG_GSTAT(&stepper1));
 
     HAL_TIM_Base_Stop_IT(&htim5);
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_10);
 
-    HAL_Delay(100);
+    HAL_Delay(1000);
     //stepper_enable(&stepper1);
     HAL_TIM_Base_Start_IT(&htim5);
     //imu_start_update(&imu);
@@ -299,7 +299,7 @@ void lora_receivetest(lora_sx1276 *lora){
     
 }
 
-// tim 5 callback. Käytetään steppaukseen
+// tim 5 callback. Käytetään steppaukseen stepper 1 ajurille
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim){
   HAL_GPIO_TogglePin(tmc2130_1_step_GPIO_Port, tmc2130_1_step_Pin);
 }
