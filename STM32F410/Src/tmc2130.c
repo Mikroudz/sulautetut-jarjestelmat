@@ -146,11 +146,11 @@ void stepper_set_dir(tmc2130 *tmc, StepDir dir){
 }
 
 void stepper_enable(tmc2130 *tmc){
-  HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_RESET);
 }
 
 void stepper_disable(tmc2130 *tmc){
-  HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_SET);
 }
 
 uint32_t read_REG_GCONF(tmc2130 *tmc){

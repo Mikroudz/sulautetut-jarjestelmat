@@ -133,16 +133,16 @@ int main(void)
   tmc2130 stepper1;
   tmc2130 stepper2;
 
-  //tmc2130_init(&stepper1, &hspi1,
-  //  tmc2130_1_enable_GPIO_Port, tmc2130_1_dir_GPIO_Port, tmc2130_1_step_GPIO_Port, tmc2130_1_nss_GPIO_Port, 
-  //  tmc2130_1_enable_Pin, tmc2130_1_dir_Pin, tmc2130_1_step_Pin, tmc2130_1_nss_Pin);
+  tmc2130_init(&stepper1, &hspi1,
+    tmc2130_1_enable_GPIO_Port, tmc2130_1_dir_GPIO_Port, tmc2130_1_step_GPIO_Port, tmc2130_1_nss_GPIO_Port, 
+    tmc2130_1_enable_Pin, tmc2130_1_dir_Pin, tmc2130_1_step_Pin, tmc2130_1_nss_Pin);
 
   bmx160 imu;
   bmx160_init(&imu, &hi2c1, GPIOA, GPIO_PIN_8);
   
-  tmc2130_init(&stepper2, &hspi5,
-    tmc2130_2_enable_GPIO_Port, tmc2130_2_dir_GPIO_Port, tmc2130_2_step_GPIO_Port, tmc2130_2_nss_GPIO_Port, 
-    tmc2130_2_enable_Pin, tmc2130_2_dir_Pin, tmc2130_2_step_Pin, tmc2130_2_nss_Pin);
+  //tmc2130_init(&stepper2, &hspi5,
+  //  tmc2130_2_enable_GPIO_Port, tmc2130_2_dir_GPIO_Port, tmc2130_2_step_GPIO_Port, tmc2130_2_nss_GPIO_Port, 
+  //  tmc2130_2_enable_Pin, tmc2130_2_dir_Pin, tmc2130_2_step_Pin, tmc2130_2_nss_Pin);
 
 
   //**** LORA RECEIVE START ****//
@@ -156,7 +156,7 @@ int main(void)
 
   HAL_Delay(1000);
   
-  stepper_enable(&stepper2);
+  stepper_enable(&stepper1);
 
   /* USER CODE END 2 */
 
@@ -166,6 +166,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    printf("Read DRVSTATUS: 0x%08x\n\r", read_REG_DRVSTATUS(&stepper2));
+    printf("Read GSTAT: 0x%x\n\r", stepper2.gstat_val);
+    printf("Read GSTAT: 0x%x\n\r", read_REG_GSTAT(&stepper2));
 
     //HAL_Delay(1000);
     if(imu_data_status == IMU_DATA_READY){
