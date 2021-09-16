@@ -187,6 +187,8 @@ int main(void)
   
   stepper_enable(&stepper1);
   stepper_setaccel(40);
+  HAL_TIM_Base_Start_IT(&htim5);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -244,7 +246,6 @@ int main(void)
 
     HAL_Delay(1500);
     //stepper_enable(&stepper1);
-    HAL_TIM_Base_Start_IT(&htim5);
     stepper_setspeed(1000);
 
     imu_start_update(&imu);
@@ -325,7 +326,49 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+// tim 5 callback. Käytetään steppaukseen stepper 1 ajurille
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim){
 
+  if(htim->Instance == TIM5){
+    HAL_GPIO_TogglePin(tmc2130_1_step_GPIO_Port, tmc2130_1_step_Pin);
+  }else{ //htim 6
+    // update step period for tim5
+    if(current_steps_ps < target_steps_per_second){ // if accelerating
+      current_steps_ps++;
+
+      TIM5->ARR = (uint32_t)((SystemCoreClock / (19 * current_steps_ps)));
+    }else if(current_steps_ps > target_steps_per_second){ // deaccelerating
+      current_steps_ps--;
+      TIM5->ARR = (uint32_t)((SystemCoreClock / (19 * current_steps_ps)));
+    }else{
+      // Speed achieved
+      HAL_TIM_Base_Stop_IT(&htim6);
+    }
+  }
+}
+
+// pin ch 5-9 callback. Loralle
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+  if(GPIO_Pin == lora_int_Pin){
+    lora_rx_status = LORA_RX_DATA_READY;
+  }
+}
+
+// i2c dma callback imulle
+// FYI myös eventit pitää olla I2C:lle päällä cubemx:Stä että tää toimii
+void HAL_I2C_MasterRxCpltCallback (I2C_HandleTypeDef * hi2c){
+  //if (hi2c->Instance==hi2c1.Instance){ 
+  //   HAL_DMA_Abort_IT(hi2c->hdmarx);
+  // }
+  imu_data_status = IMU_DATA_READY;
+}
+
+
+// LoRa SPI callback RX done
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
+  //if(hspi->Instance == )
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
+}
 /* USER CODE END 4 */
 
 /**
