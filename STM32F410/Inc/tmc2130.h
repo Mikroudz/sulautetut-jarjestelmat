@@ -51,6 +51,7 @@ void write_CHOPCONF(tmc2130 *tmc);
 void write_GCONF(tmc2130 *tmc);
 void stepper_enable(tmc2130 *tmc);
 void stepper_disable(tmc2130 *tmc);
-void stepper_step(tmc2130 *tmc, unsigned int steps);
+void stepper_update(tmc2130 *tmc);
+//void stepper_setspeed(tmc2130 *tmc, int speed);
 
 #endif

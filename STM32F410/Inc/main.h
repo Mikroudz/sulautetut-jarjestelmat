@@ -60,6 +60,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define vcc_meas_Pin GPIO_PIN_1
+#define vcc_meas_GPIO_Port GPIOC
 #define tmc2130_1_nss_Pin GPIO_PIN_4
 #define tmc2130_1_nss_GPIO_Port GPIOA
 #define tmc2130_2_nss_Pin GPIO_PIN_1

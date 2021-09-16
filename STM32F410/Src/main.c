@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "dma.h"
 #include "fmpi2c.h"
 #include "i2c.h"
@@ -51,6 +52,11 @@
 #define LORA_RX_DATA_PENDING 1
 #define LORA_RX_DATA_READY 2
 
+// Stepper step delay (5 kHz)
+#define STEP_UPDATE_US 200
+#define STEPS_MIN_PS 50
+#define STEPS_MAX_PS 1500
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -63,6 +69,11 @@
 /* USER CODE BEGIN PV */
 uint8_t imu_data_status = IMU_DATA_PENDING;
 uint8_t lora_rx_status = LORA_RX_DATA_PENDING;
+
+uint16_t target_steps_per_second = 0;
+uint16_t steps_per_second_per_second = 1000;
+uint16_t current_steps_ps = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -74,6 +85,22 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+void stepper_setaccel(uint16_t accel){
+  // accell is in rps^2
+  steps_per_second_per_second = 200 * (accel);
+  // Autoreload
+  TIM6->ARR = (uint16_t)((SystemCoreClock / (19 * steps_per_second_per_second)));
+  // prescaler
+  TIM6->PSC = (uint16_t)20 - 1;
+  TIM5->PSC = (uint16_t)20 - 1;
+}
+
+void stepper_setspeed(uint16_t speed){
+  // Speed in rpm/m
+  // fullstep
+  target_steps_per_second = 200 * (speed/60);
+  HAL_TIM_Base_Start_IT(&htim6);
+}
 /* USER CODE END 0 */
 
 /**
@@ -113,6 +140,8 @@ int main(void)
   MX_SPI5_Init();
   MX_USART6_UART_Init();
   MX_TIM5_Init();
+  MX_TIM6_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
   HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
@@ -157,7 +186,7 @@ int main(void)
   HAL_Delay(1000);
   
   stepper_enable(&stepper1);
-
+  stepper_setaccel(40);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -166,11 +195,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    printf("Read DRVSTATUS: 0x%08x\n\r", read_REG_DRVSTATUS(&stepper2));
-    printf("Read GSTAT: 0x%x\n\r", stepper2.gstat_val);
-    printf("Read GSTAT: 0x%x\n\r", read_REG_GSTAT(&stepper2));
 
-    //HAL_Delay(1000);
+    HAL_Delay(1000);
     if(imu_data_status == IMU_DATA_READY){
       imu_end_update(&imu);
       imu_data_status = IMU_DATA_PENDING;
@@ -201,18 +227,33 @@ int main(void)
       lora_rx_status = LORA_RX_DATA_PENDING;
     }
 
-    HAL_Delay(1000);
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 1000);
+    uint16_t adc_raw = HAL_ADC_GetValue(&hadc1);
+    float voltage_meas = (float)adc_raw * (3.27 / 4095.0) * 5.0;
+    char * buf[6];
+    gcvt(voltage_meas, 3, buf);
+    printf("ADC val: %s\n", buf);
+    //HAL_Delay(50);
     //printf("Read DRVreg: 0x%x\n\r", read_REG_DRVSTATUS(&stepper1));
     //printf("GSTAT val: 0x%x\n", read_REG_GSTAT(&stepper1));
 
-    HAL_TIM_Base_Stop_IT(&htim5);
+    //HAL_TIM_Base_Stop_IT(&htim5);
+    stepper_setspeed(70);
     HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_10);
 
-    HAL_Delay(1000);
+    HAL_Delay(1500);
     //stepper_enable(&stepper1);
     HAL_TIM_Base_Start_IT(&htim5);
-    //imu_start_update(&imu);
+    stepper_setspeed(1000);
 
+    imu_start_update(&imu);
+    HAL_ADC_Start(&hadc1);
+    HAL_ADC_PollForConversion(&hadc1, 1000);
+    adc_raw = HAL_ADC_GetValue(&hadc1);
+    voltage_meas = (float)adc_raw * (3.27 / 4095.0) * 5.0;
+    gcvt(voltage_meas, 3, buf);
+    printf("ADC val: %s\n", buf);
     // Send packet can be as simple as
     // Receive buffer
     //lora_receivetest(&lora);
@@ -284,51 +325,6 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void lora_receivetest(lora_sx1276 *lora){
-    uint8_t buffer[32];
-    // Put LoRa modem into continuous receive mode
-    lora_mode_receive_continuous(lora);
-    // Wait for packet up to 10sec
-    uint8_t res;
-    uint8_t len = lora_receive_packet_dma_start(lora, buffer, sizeof(buffer), &res);
-
-    //uint8_t len = lora_receive_packet_blocking(lora, buffer, sizeof(buffer), 10000, &res);
-    if (res != LORA_OK) {
-      printf("Receive faile, code: %d\n", res);
-      // Receive failed
-    }
-    buffer[len] = 0;  // null terminate string to print it
-    printf("'%s'\n", buffer);
-    
-}
-
-// tim 5 callback. Käytetään steppaukseen stepper 1 ajurille
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim){
-  HAL_GPIO_TogglePin(tmc2130_1_step_GPIO_Port, tmc2130_1_step_Pin);
-}
-
-// pin ch 5-9 callback. Loralle
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-  if(GPIO_Pin == lora_int_Pin){
-    lora_rx_status = LORA_RX_DATA_READY;
-  }
-}
-
-// i2c dma callback imulle
-// FYI myös eventit pitää olla I2C:lle päällä cubemx:Stä että tää toimii
-void HAL_I2C_MasterRxCpltCallback (I2C_HandleTypeDef * hi2c){
-  //if (hi2c->Instance==hi2c1.Instance){ 
-  //   HAL_DMA_Abort_IT(hi2c->hdmarx);
-  // }
-  imu_data_status = IMU_DATA_READY;
-}
-
-
-// LoRa SPI callback RX done
-void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi){
-  //if(hspi->Instance == )
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
-}
 
 /* USER CODE END 4 */
 
