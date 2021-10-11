@@ -64,6 +64,8 @@ void Error_Handler(void);
 #define vcc_meas_GPIO_Port GPIOC
 #define tmc2130_1_nss_Pin GPIO_PIN_4
 #define tmc2130_1_nss_GPIO_Port GPIOA
+#define tmc2130_2_step_Pin GPIO_PIN_5
+#define tmc2130_2_step_GPIO_Port GPIOC
 #define tmc2130_2_nss_Pin GPIO_PIN_1
 #define tmc2130_2_nss_GPIO_Port GPIOB
 #define tmc2130_2_enable_Pin GPIO_PIN_2
@@ -87,8 +89,8 @@ void Error_Handler(void);
 #define IMU_I2C_SCL_GPIO_Port GPIOB
 #define IMU_i2C_SDA_Pin GPIO_PIN_7
 #define IMU_i2C_SDA_GPIO_Port GPIOB
-#define tmc2130_2_step_Pin GPIO_PIN_8
-#define tmc2130_2_step_GPIO_Port GPIOB
+#define lora_nreset_Pin GPIO_PIN_8
+#define lora_nreset_GPIO_Port GPIOB
 #define tmc2130_2_dir_Pin GPIO_PIN_9
 #define tmc2130_2_dir_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
