@@ -13,6 +13,7 @@
 #define REG_DCCTRL     0x6E
 #define REG_DRVSTATUS  0x6F
 #define REG_PWMCONF    0x70
+#define REG_XDIRECT    0x2D
 
 
 // GCONF register configs
@@ -120,14 +121,25 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
 
   stepper_disable(tmc);
   stepper_set_dir(tmc, BACKWARD);
+  HAL_Delay(10);
 
     //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
 
   //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
-  write_GCONF(tmc);
-  write_IHOLD_RUN(tmc, 6, 15, 2);
   write_CHOPCONF(tmc);
+  HAL_Delay(10);
   write_PWMCONF(tmc);
+    HAL_Delay(10);
+
+  write_GCONF(tmc);
+    HAL_Delay(10);
+
+  write_IHOLD_RUN(tmc, 6, 20, 2);  
+  HAL_Delay(10);
+
+
+  write_COOLCONF(tmc);
+
 
   //    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
   //printf("Read GSTAT: 0x%x\n\r", read_REG_GSTAT(tmc));
@@ -135,6 +147,8 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
   printf("Read CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(tmc));
   printf("Read GCONF: 0x%08x\n\r", read_REG_GCONF(tmc));
   printf("Read DRVSTATUS: 0x%08x\n\r", read_REG_DRVSTATUS(tmc));
+  //printf("Read PWMCONF: 0x%08x\n\r", read_REG_PWMCONF(tmc));
+
   printf("Read GSTAT: 0x%x\n\r", tmc->gstat_val);
 
   return 0;
@@ -169,14 +183,19 @@ uint32_t read_REG_DRVSTATUS(tmc2130 *tmc){
   return read_register(tmc, REG_DRVSTATUS);
 }
 
+uint32_t read_REG_PWMCONF(tmc2130 *tmc){
+  return read_register(tmc, REG_PWMCONF);
+}
+
 void write_CHOPCONF(tmc2130 *tmc){
 
   uint32_t val = 0x000100C3;//0x00008008; = 0x0001 << 24;// MRES microstep resolution 0 //0x000100C3;
   val |= 8 << 24; // fullstep
   val |= 1 << 28; // interpolation
-  val |= 1 << 15; //TBL 1 = 24
-  val |= 1 << 4; // HSTRT
-  val |= 10 << 7; // HEND
+  val |= 1 << 17; // Vsense = 1
+  val |= 2 << 15; //TBL 1 = 24
+  val |= 2 << 4; // HSTRT
+  val |= 3 << 7; // HEND
   val |= 3; //Toff
   printf("Chopconf written: 0x%08x\n", val);
   write_register(tmc, REG_CHOPCONF, val);
@@ -207,10 +226,20 @@ void write_IHOLD_RUN(tmc2130 *tmc, uint8_t ihold, uint8_t irun, uint8_t iholddel
   write_register(tmc, REG_IHOLD_IRUN, reg_value);
 }
 
+void write_COOLCONF(tmc2130 *tmc) {
+  
+  uint32_t reg_value = 0;
+  printf("Coolconf written: 0x%08x\n", reg_value);
+
+  write_register(tmc, REG_COOLCONF, reg_value);
+}
+
+
 void write_GCONF(tmc2130 *tmc){
-  uint32_t reg_value = 0x1;
+  uint32_t reg_value = 0;
 
   reg_value |= 1 << 2; // PWM enable
+  reg_value |= 1; // AIN reference
 
   printf("GCONF written: 0x%08x\n", reg_value);
 

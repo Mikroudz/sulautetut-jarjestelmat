@@ -55,12 +55,18 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(tmc2130_1_nss_GPIO_Port, tmc2130_1_nss_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4|tmc2130_2_step_Pin|tmc2130_1_step_Pin|tmc2130_1_enable_Pin
-                          |GPIO_PIN_10|GPIO_PIN_11|lora_rx_enable_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4|tmc2130_2_step_Pin|tmc2130_1_step_Pin|GPIO_PIN_10
+                          |GPIO_PIN_11|lora_rx_enable_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, tmc2130_2_nss_Pin|tmc2130_2_enable_Pin|tmc2130_1_dir_Pin|lora_tx_enable_Pin
-                          |lora_nreset_Pin|tmc2130_2_dir_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, tmc2130_2_nss_Pin|tmc2130_1_dir_Pin|lora_tx_enable_Pin|lora_nreset_Pin
+                          |tmc2130_2_dir_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(tmc2130_2_enable_GPIO_Port, tmc2130_2_enable_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(tmc2130_1_enable_GPIO_Port, tmc2130_1_enable_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED3_GPIO_Port, LED3_Pin, GPIO_PIN_SET);

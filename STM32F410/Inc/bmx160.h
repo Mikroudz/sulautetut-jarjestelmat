@@ -5,13 +5,22 @@
 #include "main.h"
 #include <stdio.h>
 
+typedef struct {
+    int16_t x;
+    int16_t y;
+    int16_t z;
+} data_t;
+
+
 
 typedef struct {
     I2C_HandleTypeDef   *i2c;
     GPIO_TypeDef        *int1_port;
     uint16_t            int1_pin;
     uint8_t             data_buf[23];
-
+    data_t              gyro;
+    data_t              acc;
+    data_t              magnetometer;
 } bmx160;
 
 
@@ -25,5 +34,6 @@ uint8_t bmx160_init(bmx160 *imu, I2C_HandleTypeDef *i2c,
 void imu_start_update(bmx160 *imu);
 void imu_softreset(bmx160 *imu);
 void imu_end_update(bmx160 *imu);
+void imu_print_values(bmx160 *imu);
 
 #endif

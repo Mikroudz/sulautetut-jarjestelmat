@@ -136,6 +136,12 @@ void imu_start_update(bmx160 *imu){
 
 }   
 
+void imu_print_values(bmx160 *imu){
+
+    printf("x: %d, y: %d, z: %d, x: %d, y: %d, z: %d\n",
+     imu->acc.x, imu->acc.y, imu->acc.z, imu->gyro.x, imu->gyro.y, imu->gyro.z);
+}
+
 // Kutsu dma takaisinkutsusta kun data on siirretty
 void imu_end_update(bmx160 *imu){
     uint8_t *buf = imu->data_buf;
@@ -159,8 +165,15 @@ void imu_end_update(bmx160 *imu){
     gyro_x *= BMX160_GYRO_SENSITIVITY_250DPS;
     gyro_z *= BMX160_GYRO_SENSITIVITY_250DPS;
 
+    imu->acc.x = acc_x;
+    imu->acc.y = acc_y;
+    imu->acc.z = acc_z;
 
-    printf("x: %d, y: %d, z: %d, x: %d, y: %d, z: %d\n", acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z);
+    imu->gyro.x = gyro_x;
+    imu->gyro.y = gyro_y;
+    imu->gyro.z = gyro_z;
+
+    //printf("x: %d, y: %d, z: %d, x: %d, y: %d, z: %d\n", acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z);
 }
 
 void imu_softreset(bmx160 *imu){

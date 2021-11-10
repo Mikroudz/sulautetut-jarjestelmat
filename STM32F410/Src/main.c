@@ -44,6 +44,10 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
+// ADC status
+#define ADC_DATA_PENDING 0
+#define ADC_DATA_READY 1
+
 // Imu tilat
 #define IMU_DATA_PENDING 1
 #define IMU_DATA_READY 2
@@ -57,6 +61,13 @@
 #define STEPS_MIN_PS 50
 #define STEPS_MAX_PS 1500
 
+// how often to run different functions in ms
+#define CALC_BALANCE 100 // main loop
+#define BLINK_LED 1000
+#define READ_IMU 500
+#define READ_VOLTAGE 500
+#define STEPPER_UPDATE_RATE 4000
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -67,9 +78,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t imu_data_status = IMU_DATA_PENDING;
-uint8_t lora_rx_status = LORA_RX_DATA_PENDING;
-
+volatile uint8_t imu_data_status = IMU_DATA_PENDING;
+volatile uint8_t lora_rx_status = LORA_RX_DATA_PENDING;
+volatile uint8_t adc_data_status = ADC_DATA_PENDING;
 
  //*** TODO: ***//
  //rewrite this in a struct. DO NOT use the same struct as with tmc2130. This should be separate
@@ -221,10 +232,16 @@ int main(void)
   HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
 
-  HAL_Delay(20);
+  HAL_Delay(1000);
   RetargetInit(&huart6);
 
-  
+  uint32_t last_run_balance = 0;
+  uint32_t last_read_voltage = 0;
+  uint32_t last_blink = 0;
+  uint32_t last_read_imu = 0;
+  uint32_t last_stepper_update = 0;
+
+
   lora_sx1276 lora;
 
   // SX1276 compatible module connected to SPI2, NSS pin connected to GPIO with label LORA_NSS
@@ -262,11 +279,11 @@ int main(void)
   HAL_Delay(10);
   
   stepper_enable(&stepper1);
-  stepper_enable(&stepper2);
+  //stepper_enable(&stepper2);
   // accel is global
   stepper_setaccel(40);
-  // start stepper clocks
-  //HAL_TIM_Base_Start_IT(&htim5);
+  // start stepper clocks. htim9 is for stepper 2
+  HAL_TIM_Base_Start_IT(&htim5);
   //HAL_TIM_Base_Start_IT(&htim9);
 
   /* USER CODE END 2 */
@@ -278,14 +295,61 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-    HAL_Delay(1000);
-
-    adc_start();
-    if(imu_data_status == IMU_DATA_READY){
-      imu_end_update(&imu);
-      imu_data_status = IMU_DATA_PENDING;
+    // TEST function for stepper. Comment this out when using calc balance
+    if(HAL_GetTick() - last_stepper_update > STEPPER_UPDATE_RATE){
+      if (target_sps_stepper1 > 299){
+        stepper1_setspeed(60);
+      }else if(target_sps_stepper1 < 300){
+        stepper1_setspeed(300);
+      }
+      last_stepper_update = HAL_GetTick();
     }
 
+    // run balance every 100 ms (set in CALC_BALANCE as milliseconds)
+    if(HAL_GetTick() - last_run_balance > CALC_BALANCE){
+      //take last time here
+      last_run_balance = HAL_GetTick();
+
+      // Calculate roll&pitch
+
+      // Filter gyro&accelerometer
+
+      // check if we need to go forward or back. Add that to desired angle
+
+      // Run PID
+
+
+
+      // Set stepper speed & direction if needed
+
+      // EXAMPLE: 
+      //stepper1_setspeed(70);
+      //stepper2_setspeed(70);
+      //stepper1_setdir(BACKWARD);
+    }
+
+    // Read voltage to adc_raw every READ_VOLTAGE
+    if(HAL_GetTick() - last_read_voltage > READ_VOLTAGE){
+      adc_start();
+      last_read_voltage = HAL_GetTick();
+    }
+
+    // Update imu values
+    if( HAL_GetTick() - last_read_imu > READ_IMU){
+      imu_start_update(&imu);
+      last_read_imu = HAL_GetTick();
+    }
+
+    // Check if imu data is ready to be read
+    if(imu_data_status == IMU_DATA_READY){
+      // update values in imu structure. Read them like imu.acc.x etc...
+      imu_end_update(&imu);
+      // print values (for debug only)
+      imu_print_values(&imu);
+      imu_data_status = IMU_DATA_PENDING;
+    }
+    
+    // TODO: move this to a function
     if(lora_rx_status == LORA_RX_DATA_READY){
       // LoRa receive check
       // Wait for packet up to 10sec
@@ -311,28 +375,22 @@ int main(void)
       lora_rx_status = LORA_RX_DATA_PENDING;
     }
 
-    char * buf[6];
-    gcvt((float)adc_raw * (3.27 / 4095.0) * 5.0, 3, buf);
-    printf("ADC val: %s\n", buf);
-    //HAL_Delay(50);
-    //printf("Read DRVreg: 0x%x\n\r", read_REG_DRVSTATUS(&stepper1));
-    //printf("GSTAT val: 0x%x\n", read_REG_GSTAT(&stepper1));
 
-    //HAL_TIM_Base_Stop_IT(&htim5);
-    stepper1_setspeed(70);
-    stepper2_setspeed(70);
-    stepper1_setdir(BACKWARD);
-    //led
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_10);
+    // Check if adc (voltage) is correctly read and print it.
+    if(adc_data_status == ADC_DATA_READY){
+      char * buf[6];
+      gcvt((float)adc_raw * (3.27 / 4095.0) * 5.0, 3, buf);
+      printf("ADC val: %s\n", buf);
+      adc_data_status = ADC_DATA_PENDING;
+    }
 
-    HAL_Delay(1500);
-    //stepper_enable(&stepper1);
-    stepper1_setspeed(1000);
-    stepper2_setspeed(1000);
 
-    HAL_Delay(1500);
+    // blink one of leds every second
+    if(HAL_GetTick() - last_blink > BLINK_LED){
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
+      last_blink = HAL_GetTick();
+    }
 
-    stepper1_setdir(FORWARD);
 
     // Send packet can be as simple as
     // Receive buffer
@@ -342,9 +400,6 @@ int main(void)
     //  printf("Send fail: %d\n", res);
       // Send failed
     //}
-    HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
-
-    //stepper_disable(&stepper1);
 
   }
   /* USER CODE END 3 */
@@ -472,6 +527,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 // ADC callback
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
   adc_raw = HAL_ADC_GetValue(&hadc1);
+  adc_data_status = ADC_DATA_READY;
 }
 
 // i2c dma callback imulle
