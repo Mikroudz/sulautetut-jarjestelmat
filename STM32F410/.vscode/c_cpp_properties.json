@@ -8,8 +8,8 @@
         {
             "name": "PlatformIO",
             "includePath": [
-                "D:/Dokumentit2/sulautetut-jarjestelmat/STM32F410/Inc",
-                "D:/Dokumentit2/sulautetut-jarjestelmat/STM32F410/Src",
+                "d:/Dokumentit2/sulautetut-jarjestelmat/STM32F410/Inc",
+                "d:/Dokumentit2/sulautetut-jarjestelmat/STM32F410/Src",
                 "C:/Users/Mikro/.platformio/packages/framework-stm32cubef4/Drivers/CMSIS/DSP/Include",
                 "C:/Users/Mikro/.platformio/packages/framework-stm32cubef4/Drivers/CMSIS/Include",
                 "C:/Users/Mikro/.platformio/packages/framework-stm32cubef4/Drivers/CMSIS/Device/ST/STM32F4xx/Include",
@@ -84,8 +84,8 @@
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
-                    "D:/Dokumentit2/sulautetut-jarjestelmat/STM32F410/Inc",
-                    "D:/Dokumentit2/sulautetut-jarjestelmat/STM32F410/Src",
+                    "d:/Dokumentit2/sulautetut-jarjestelmat/STM32F410/Inc",
+                    "d:/Dokumentit2/sulautetut-jarjestelmat/STM32F410/Src",
                     "C:/Users/Mikro/.platformio/packages/framework-stm32cubef4/Drivers/CMSIS/DSP/Include",
                     "C:/Users/Mikro/.platformio/packages/framework-stm32cubef4/Drivers/CMSIS/Include",
                     "C:/Users/Mikro/.platformio/packages/framework-stm32cubef4/Drivers/CMSIS/Device/ST/STM32F4xx/Include",
@@ -159,7 +159,7 @@
                 ]
             },
             "defines": [
-                "PLATFORMIO=50101",
+                "PLATFORMIO=50204",
                 "STM32F410Rx",
                 "STM32F4xx",
                 "USE_HAL_DRIVER",

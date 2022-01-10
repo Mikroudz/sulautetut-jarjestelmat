@@ -1393,7 +1393,7 @@ Wire Wire Line
 Text Notes 1300 4700 0    50   ~ 0
 Debug-liitin (UART)
 Text Notes 13700 3150 0    50   ~ 0
-Stepper-ohjain 1
+Stepper-ohjain 2
 Text Notes 13550 5050 0    50   ~ 0
 Nema14 liitin
 Text Notes 13600 2650 0    50   ~ 0
@@ -1453,7 +1453,7 @@ Wire Wire Line
 Text Label 8300 5300 2    50   ~ 0
 PA11
 Text Notes 13650 700  0    50   ~ 0
-Stepper-ohjain 2
+Stepper-ohjain 1
 Wire Wire Line
 	8050 6300 8300 6300
 Text Label 8300 6300 2    50   ~ 0

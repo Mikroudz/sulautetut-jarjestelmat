@@ -12,7 +12,7 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "D:/Dokumentit2/sulautetut-jarjestelmat/STM32F410/.pio/build/genericSTM32F410RB/firmware.elf",
+            "executable": "d:/Dokumentit2/sulautetut-jarjestelmat/STM32F410/.pio/build/genericSTM32F410RB/firmware.elf",
             "projectEnvName": "genericSTM32F410RB",
             "toolchainBinDir": "C:/Users/Mikro/.platformio/packages/toolchain-gccarmnoneeabi/bin",
             "internalConsoleOptions": "openOnSessionStart",
@@ -26,11 +26,22 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "D:/Dokumentit2/sulautetut-jarjestelmat/STM32F410/.pio/build/genericSTM32F410RB/firmware.elf",
+            "executable": "d:/Dokumentit2/sulautetut-jarjestelmat/STM32F410/.pio/build/genericSTM32F410RB/firmware.elf",
             "projectEnvName": "genericSTM32F410RB",
             "toolchainBinDir": "C:/Users/Mikro/.platformio/packages/toolchain-gccarmnoneeabi/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "svdPath": "C:/Users/Mikro/.platformio/platforms/ststm32/misc/svd/STM32F410xx.svd"
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug (without uploading)",
+            "executable": "d:/Dokumentit2/sulautetut-jarjestelmat/STM32F410/.pio/build/genericSTM32F410RB/firmware.elf",
+            "projectEnvName": "genericSTM32F410RB",
+            "toolchainBinDir": "C:/Users/Mikro/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "svdPath": "C:/Users/Mikro/.platformio/platforms/ststm32/misc/svd/STM32F410xx.svd",
+            "loadMode": "manual"
         }
     ]
 }
