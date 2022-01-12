@@ -1,55 +1,5 @@
 #include "bmx160.h"
 
-#define ADDR 0x68
-
-#define REG_CHIPID 0x00
-#define REG_DATA 0x04
-#define REG_PMU_STATUS 0x03
-#define REG_CMD 0x7E
-#define REG_ACC_RANGE 0x41
-#define REG_GYRO_RANGE 0x43
-
-/** Soft reset command */
-#define BMX160_SOFT_RESET_CMD                    0xb6
-#define BMX160_SOFT_RESET_DELAY_MS               15
-
-/* Macro for micro tesla (uT) per LSB (1 LSB = 0.1uT) */
-#define BMX160_MAGN_UT_LSB      (0.3F)
-
-/** Range settings */
-/* Accel Range */
-#define BMX160_ACCEL_RANGE_2G                    0x03
-#define BMX160_ACCEL_RANGE_4G                    0x05
-#define BMX160_ACCEL_RANGE_8G                    0x08
-#define BMX160_ACCEL_RANGE_16G                   0x0C
-
-/* Gyro Range */
-#define BMX160_GYRO_RANGE_2000_DPS               0x00
-#define BMX160_GYRO_RANGE_1000_DPS               0x01
-#define BMX160_GYRO_RANGE_500_DPS                0x02
-#define BMX160_GYRO_RANGE_250_DPS                0x03
-#define BMX160_GYRO_RANGE_125_DPS                0x04
-
-/* Macro for mg per LSB at +/- 2g sensitivity (1 LSB = 0.000061035mg) */
-#define BMX160_ACCEL_MG_LSB_2G      0.000061035F
-/* Macro for mg per LSB at +/- 4g sensitivity (1 LSB = 0.000122070mg) */
-#define BMX160_ACCEL_MG_LSB_4G      0.000122070F
-/* Macro for mg per LSB at +/- 8g sensitivity (1 LSB = 0.000244141mg) */
-#define BMX160_ACCEL_MG_LSB_8G      0.000244141F
-/* Macro for mg per LSB at +/- 16g sensitivity (1 LSB = 0.000488281mg) */
-#define BMX160_ACCEL_MG_LSB_16G     0.000488281F
-
-/* Gyroscope sensitivity at 125dps */
-#define BMX160_GYRO_SENSITIVITY_125DPS  0.0038110F // Table 1 of datasheet
-/* Gyroscope sensitivity at 250dps */
-#define BMX160_GYRO_SENSITIVITY_250DPS  0.0076220F // Table 1 of datasheet
-/* Gyroscope sensitivity at 500dps */
-#define BMX160_GYRO_SENSITIVITY_500DPS  0.0152439F
-/* Gyroscope sensitivity at 1000dps */
-#define BMX160_GYRO_SENSITIVITY_1000DPS 0.0304878F
-/* Gyroscope sensitivity at 2000dps */
-#define BMX160_GYRO_SENSITIVITY_2000DPS 0.0609756F
-
 
 static void read_register(bmx160 *imu, uint8_t reg_addr, size_t data_len, uint8_t *buf){
     HAL_StatusTypeDef ret;
@@ -114,10 +64,10 @@ uint8_t bmx160_init(bmx160 *imu, I2C_HandleTypeDef *i2c,
     HAL_Delay(10);
 
     // set acc range 4G == 0b0101
-    write_register(imu, REG_ACC_RANGE, 0b0101);
+    write_register(imu, REG_ACC_RANGE, BMX160_ACCEL_RANGE_4G);
 
     // set gyro range +-250 deg/s
-    write_register(imu, REG_GYRO_RANGE, 0b0011);
+    write_register(imu, REG_GYRO_RANGE, BMX160_GYRO_RANGE_250_DPS);
 
     read_register(imu, REG_CHIPID, 1, buf);
     printf("Read CHIPID: 0x%x\n\r", buf[0]);
@@ -152,18 +102,18 @@ void imu_end_update(bmx160 *imu){
     acc_y = (int16_t)((buf[17] << 8) | buf[16]);
     acc_z = (int16_t)((buf[19] << 8) | buf[18]);
     // skaalaa kiihtyvyys
-    acc_y *= (BMX160_ACCEL_MG_LSB_4G * 10);
+    /*acc_y *= (BMX160_ACCEL_MG_LSB_4G * 10);
     acc_x *= (BMX160_ACCEL_MG_LSB_4G * 10);
-    acc_z *= (BMX160_ACCEL_MG_LSB_4G * 10);
+    acc_z *= (BMX160_ACCEL_MG_LSB_4G * 10);*/
 
     // Parsee gyro
     gyro_x = (int16_t)((buf[9] << 8) | buf[8]);
     gyro_y = (int16_t)((buf[11] << 8) | buf[10]);
     gyro_z = (int16_t)((buf[13] << 8) | buf[12]);
     // skaalaa gyro
-    gyro_y *= BMX160_GYRO_SENSITIVITY_250DPS;
+    /*gyro_y *= BMX160_GYRO_SENSITIVITY_250DPS;
     gyro_x *= BMX160_GYRO_SENSITIVITY_250DPS;
-    gyro_z *= BMX160_GYRO_SENSITIVITY_250DPS;
+    gyro_z *= BMX160_GYRO_SENSITIVITY_250DPS;*/
 
     imu->acc.x = acc_x;
     imu->acc.y = acc_y;

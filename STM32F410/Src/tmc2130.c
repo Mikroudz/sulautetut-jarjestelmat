@@ -98,29 +98,20 @@ static void write_register(tmc2130 *tmc, uint8_t address, uint32_t value)
 
 uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi, 
     GPIO_TypeDef *enable_port,
-    GPIO_TypeDef *direction_port,
-    GPIO_TypeDef *step_port,
     GPIO_TypeDef *nss_port,
     uint16_t enable_pin,
-    uint16_t direction_pin,
-    uint16_t step_pin,
     uint16_t nss_pin
     ){
-    assert_param(tmc && spi);
+  assert_param(tmc && spi);
 
   tmc->spi = spi;
   tmc->enable_port = enable_port;
-  tmc->direction_port = direction_port;
-  tmc->step_port = step_port;
   tmc->enable_pin = enable_pin;
-  tmc->direction_pin = direction_pin;
-  tmc->step_pin = step_pin;
   tmc->nss_port = nss_port;
   tmc->nss_pin = nss_pin;
   tmc->spi_timeout = 1000;
 
   stepper_disable(tmc);
-  stepper_set_dir(tmc, BACKWARD);
   HAL_Delay(10);
 
     //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
@@ -129,18 +120,12 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
   write_CHOPCONF(tmc);
   HAL_Delay(10);
   write_PWMCONF(tmc);
-    HAL_Delay(10);
-
+  HAL_Delay(10);
   write_GCONF(tmc);
-    HAL_Delay(10);
-
+  HAL_Delay(10);
   write_IHOLD_RUN(tmc, 6, 20, 2);  
   HAL_Delay(10);
-
-
   write_COOLCONF(tmc);
-
-
   //    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
   //printf("Read GSTAT: 0x%x\n\r", read_REG_GSTAT(tmc));
   //    printf("Read GSTAT: 0x%08x\n\r", read_REG_GSTAT(&stepper1));
@@ -154,13 +139,13 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
   return 0;
 }
 
-void stepper_set_dir(tmc2130 *tmc, StepDir dir){
+/*void stepper_set_dir(tmc2130 *tmc, StepDir dir){
   tmc->direction = dir;
   if(dir == FORWARD)
     HAL_GPIO_WritePin(tmc->direction_port, tmc->direction_pin, GPIO_PIN_RESET);
   else
     HAL_GPIO_WritePin(tmc->direction_port, tmc->direction_pin, GPIO_PIN_SET);
-}
+}*/
 
 void stepper_enable(tmc2130 *tmc){
   HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_RESET);

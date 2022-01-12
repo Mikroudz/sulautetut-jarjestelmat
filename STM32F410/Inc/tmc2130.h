@@ -5,12 +5,6 @@
 #include "main.h"
 #include <stdio.h>
 
-typedef enum {
-    FORWARD = 0,
-    BACKWARD
-} StepDir;
-
-
 // Asetustruktuuri stepperille. Luo jokaiselle stepperille oma tälläinen
 typedef struct {
     SPI_HandleTypeDef   *spi;
@@ -24,25 +18,20 @@ typedef struct {
     uint16_t            nss_pin;
     uint16_t            spi_timeout;
     uint8_t             gstat_val;
-    StepDir             direction;
 } tmc2130;
 
 
 // prototyypit
 uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi, 
     GPIO_TypeDef *enable_port,
-    GPIO_TypeDef *direction_port,
-    GPIO_TypeDef *step_port,
     GPIO_TypeDef *nss_port,
     uint16_t enable_pin,
-    uint16_t direction_pin,
-    uint16_t step_pin,
     uint16_t nss_pin
     );
 uint32_t read_REG_GCONF(tmc2130 *tmc);
 uint8_t read_REG_GSTAT(tmc2130 *tmc);
 
-void stepper_set_dir(tmc2130 *tmc, StepDir dir);
+//void stepper_set_dir(tmc2130 *tmc, StepDir dir);
 uint32_t read_REG_DRVSTATUS(tmc2130 *tmc);
 void write_IHOLD_RUN(tmc2130 *tmc, uint8_t ihold, uint8_t irun, uint8_t iholddelay);
 uint32_t read_REG_CHOPCONF(tmc2130 *tmc);

@@ -39,11 +39,23 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+typedef struct {
+    int16_t x;
+    int16_t y;
+    int16_t z;
+} data_t;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
+#define M_PI 3.14159265359
+
+// how often to run different functions in ms
+#define CALC_BALANCE 30 // main loop
+#define BLINK_LED 1000
+#define READ_IMU 20
+#define READ_VOLTAGE 500
+#define STEPPER_UPDATE_RATE 4000
 
 /* USER CODE END EC */
 

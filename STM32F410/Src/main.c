@@ -33,6 +33,8 @@
 #include "lora_sx1276.h"
 #include "tmc2130.h"
 #include "bmx160.h"
+#include "stepper.h"
+#include "motion_control.h"
 
 /* USER CODE END Includes */
 
@@ -56,19 +58,7 @@
 #define LORA_RX_DATA_PENDING 1
 #define LORA_RX_DATA_READY 2
 
-// Stepper step delay (5 kHz)
-#define STEP_UPDATE_US 200
-#define STEPS_MIN_PS 50
-#define STEPS_MAX_PS 1500
-#define MAX_STEPS_PER_S 400
-#define JERK_STEPS_PER_S 50
 
-// how often to run different functions in ms
-#define CALC_BALANCE 100 // main loop
-#define BLINK_LED 1000
-#define READ_IMU 500
-#define READ_VOLTAGE 500
-#define STEPPER_UPDATE_RATE 4000
 
 /* USER CODE END PD */
 
@@ -84,25 +74,8 @@ volatile uint8_t imu_data_status = IMU_DATA_PENDING;
 volatile uint8_t lora_rx_status = LORA_RX_DATA_PENDING;
 volatile uint8_t adc_data_status = ADC_DATA_PENDING;
 
- //*** TODO: ***//
- //rewrite this in a struct. DO NOT use the same struct as with tmc2130. This should be separate
-//acceleration value
-uint16_t steps_per_second_per_second = 1000;
-// target steps
-uint16_t target_sps_stepper2 = 0, target_sps_stepper1 = 0;
-// current steps
-uint16_t current_steps_stepper2 = 0, current_steps_stepper1 = 0;
-// used for saving the target step value when direction is changed
-uint16_t set_steps_stepper1 = 0, set_steps_stepper2 = 0;
-// current direction of motor
-StepDir stepper1_dir = FORWARD, stepper2_dir = FORWARD;
-// new direction after stopping
-StepDir stepper1_target_dir = FORWARD, stepper2_target_dir = FORWARD;
-
-uint16_t stepper1_current_angle = 0;
-uint16_t stepper1_target_angle = 0;
-uint16_t stepper1_steps_to_take = 0;
-
+Stepper_HandleTypeDef step1;
+Stepper_HandleTypeDef step2;
 
 //ADC 
 uint16_t adc_raw = 0;
@@ -117,79 +90,6 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-void stepper_setaccel(uint16_t accel){
-  // accell is in rps^2
-  steps_per_second_per_second = 200 * (accel);
-  // Autoreload
-  TIM6->ARR = (uint16_t)((SystemCoreClock / (19 * steps_per_second_per_second)));
-  // prescaler set to 20
-  TIM6->PSC = (uint16_t)20 - 1;
-  TIM5->PSC = (uint16_t)20 - 1;
-  TIM9->PSC = (uint16_t)20 - 1;
-}
-
-
-// Check if we are changing directions (returns true or false)
-uint8_t stepper1_directionchange(){
-  return stepper1_target_dir ^ stepper1_dir;
-}
-// Check if we are changing directions (returns true or false)
-uint8_t stepper2_directionchange(){
-  return stepper2_target_dir ^ stepper2_dir;
-}
-
-void stepper1_setspeed(uint16_t speed){
-  // Speed in rpm/m
-  // fullstep
-  if (stepper1_directionchange()){
-    set_steps_stepper1 = 200 * (speed/60);
-  }else{
-    target_sps_stepper1 = 200 * (speed/60);
-  }
-
-  HAL_TIM_Base_Start_IT(&htim6);
-}
-
-void stepper2_setspeed(uint16_t speed){
-  // Speed in rpm/m
-  // fullstep
-  if (stepper2_directionchange()){
-    set_steps_stepper2 = 200 * (speed/60);
-
-  }else {
-    target_sps_stepper2 = 200 * (speed/60);
-  }
-  HAL_TIM_Base_Start_IT(&htim6);
-}
-
-//angle in deg 0 - 360
-void stepper1_setangle(uint16_t angle){
-  uint16_t angle_in_steps = angle * 0.55556;
-  stepper1_target_angle = angle_in_steps;
-}
-
-//change direction
-void stepper1_setdir(StepDir dir){
-  // if acceleration is not changed save current to "set" var
-  set_steps_stepper1 = target_sps_stepper1;
-  // now change target to jerk speed
-  target_sps_stepper1 = 50;
-  stepper1_target_dir = dir;
-  // start acceleration timer if is not running. This does nothing if it is enabled already
-  HAL_TIM_Base_Start_IT(&htim6);
-}
-
-//change direction
-void stepper2_setdir(StepDir dir){
-  // if acceleration is not changed save current to "set" var
-  set_steps_stepper2 = target_sps_stepper2;
-  // now change target to jerk speed
-  target_sps_stepper2 = 50;
-  stepper2_target_dir = dir;
-  // start acceleration timer if is not running. This does nothing if it is enabled already
-  HAL_TIM_Base_Start_IT(&htim6);
-}
 
 void adc_start(void){
 
@@ -254,6 +154,8 @@ int main(void)
   uint32_t last_read_imu = 0;
   uint32_t last_stepper_update = 0;
 
+  float real_pitch = 0;
+
 
   lora_sx1276 lora;
 
@@ -269,16 +171,20 @@ int main(void)
   tmc2130 stepper2;
 
   tmc2130_init(&stepper1, &hspi1,
-    tmc2130_1_enable_GPIO_Port, tmc2130_1_dir_GPIO_Port, tmc2130_1_step_GPIO_Port, tmc2130_1_nss_GPIO_Port, 
-    tmc2130_1_enable_Pin, tmc2130_1_dir_Pin, tmc2130_1_step_Pin, tmc2130_1_nss_Pin);
+    tmc2130_1_enable_GPIO_Port, tmc2130_1_nss_GPIO_Port, 
+    tmc2130_1_enable_Pin, tmc2130_1_nss_Pin);
+
+  tmc2130_init(&stepper2, &hspi5,
+    tmc2130_2_enable_GPIO_Port, tmc2130_2_nss_GPIO_Port, 
+    tmc2130_2_enable_Pin, tmc2130_2_nss_Pin);
 
   bmx160 imu;
   bmx160_init(&imu, &hi2c1, GPIOA, GPIO_PIN_8);
-  
-  tmc2130_init(&stepper2, &hspi5,
-    tmc2130_2_enable_GPIO_Port, tmc2130_2_dir_GPIO_Port, tmc2130_2_step_GPIO_Port, tmc2130_2_nss_GPIO_Port, 
-    tmc2130_2_enable_Pin, tmc2130_2_dir_Pin, tmc2130_2_step_Pin, tmc2130_2_nss_Pin);
 
+  init_stepper(&step1, &htim5, tmc2130_1_step_GPIO_Port, tmc2130_1_step_Pin,
+              tmc2130_1_dir_GPIO_Port,tmc2130_1_dir_Pin);
+  init_stepper(&step2, &htim6, tmc2130_2_step_GPIO_Port, tmc2130_2_step_Pin,
+              tmc2130_2_dir_GPIO_Port,tmc2130_2_dir_Pin);
 
   //**** LORA RECEIVE START ****//
   uint8_t lora_rx_buffer[128];
@@ -291,13 +197,8 @@ int main(void)
 
   HAL_Delay(10);
   
-  stepper_enable(&stepper1);
+  //stepper_enable(&stepper1);
   //stepper_enable(&stepper2);
-  // accel is global
-  stepper_setaccel(40);
-  // start stepper clocks. htim9 is for stepper 2
-  HAL_TIM_Base_Start_IT(&htim5);
-  //HAL_TIM_Base_Start_IT(&htim9);
 
   /* USER CODE END 2 */
 
@@ -310,34 +211,29 @@ int main(void)
 
     // TEST function for stepper. Comment this out when using calc balance
     if(HAL_GetTick() - last_stepper_update > STEPPER_UPDATE_RATE){
-      if (target_sps_stepper1 > 299){
-        stepper1_setspeed(60);
-      }else if(target_sps_stepper1 < 300){
-        stepper1_setspeed(300);
-      }
+      stepper_setangle(&step1, 1000);
+      stepper_setangle(&step2, -1000);
       last_stepper_update = HAL_GetTick();
     }
 
     // run balance every 100 ms (set in CALC_BALANCE as milliseconds)
     if(HAL_GetTick() - last_run_balance > CALC_BALANCE){
-      //take last time here
       last_run_balance = HAL_GetTick();
 
       // Calculate roll&pitch
+      // maybe need a mutex on imu values?
+      real_pitch = complementary_filter(&imu.acc, &imu.gyro, real_pitch);
+      //printf("pitch: %0.2f\n", real_pitch);
+      char str_buf[5];
+      gcvt(real_pitch, 4, str_buf);
+      printf("pitch: %s\n", str_buf);
+      //printf("x: %d y: %d z: %d\n", imu.acc.x, imu.acc.y, imu.acc.z);
 
       // Filter gyro&accelerometer with complementary filter
 
-
       // Run PID
 
-
-
       // Set stepper speed & direction if needed
-
-      // EXAMPLE: 
-      //stepper1_setspeed(70);
-      //stepper2_setspeed(70);
-      //stepper1_setdir(BACKWARD);
     }
 
     // Read voltage to adc_raw every READ_VOLTAGE
@@ -357,7 +253,7 @@ int main(void)
       // update values in imu structure. Read them like imu.acc.x etc...
       imu_end_update(&imu);
       // print values (for debug only)
-      imu_print_values(&imu);
+      //imu_print_values(&imu);
       imu_data_status = IMU_DATA_PENDING;
     }
     
@@ -392,7 +288,7 @@ int main(void)
     if(adc_data_status == ADC_DATA_READY){
       char * buf[6];
       gcvt((float)adc_raw * (3.27 / 4095.0) * 5.0, 3, buf);
-      printf("ADC val: %s\n", buf);
+      //printf("ADC val: %s\n", buf);
       adc_data_status = ADC_DATA_PENDING;
     }
 
@@ -472,60 +368,12 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-// tim 5 callback. Käytetään steppaukseen stepper 1 ajurille
+// ajastininterruptit
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim){
-
   if(htim->Instance == TIM5){ // stepper 1
-    HAL_GPIO_TogglePin(tmc2130_1_step_GPIO_Port, tmc2130_1_step_Pin);
-  }else if(htim->Instance == TIM9){ // stepper 2
-    HAL_GPIO_TogglePin(tmc2130_2_step_GPIO_Port, tmc2130_2_step_Pin);
-  }else{ //htim 6
-    uint8_t done = 0;
-    // update step period for tim5 (stepper 1)
-    if(current_steps_stepper1 < target_sps_stepper1){ // if accelerating
-      current_steps_stepper1++;
-
-      TIM5->ARR = (uint32_t)((SystemCoreClock / (19 * current_steps_stepper1)));
-    }else if(current_steps_stepper1 > target_sps_stepper1){ // deaccelerating
-      current_steps_stepper1--;
-      TIM5->ARR = (uint32_t)((SystemCoreClock / (19 * current_steps_stepper1)));
-
-    }else if (stepper1_directionchange()){ // check if we have a direction change pending
-      // target was set to stopping speed ("jerk speed") where we can reverse stepper direction
-      // now set actual target velocity
-      target_sps_stepper1 = set_steps_stepper1;
-      // and change direction
-      stepper1_dir = stepper1_target_dir;
-      // and update (direction) output pin
-      HAL_GPIO_TogglePin(tmc2130_1_dir_GPIO_Port, tmc2130_1_dir_Pin);
-    }else{
-      // Speed achieved
-      done++;
-      //HAL_TIM_Base_Stop_IT(&htim6);
-    }
-
-    // update step period for tim9 (stepper 2)
-    if(current_steps_stepper2 < target_sps_stepper2){ // if accelerating
-      current_steps_stepper2++;
-
-      TIM9->ARR = (uint32_t)((SystemCoreClock / (19 * current_steps_stepper2)));
-    }else if(current_steps_stepper2 > target_sps_stepper2){ // deaccelerating
-      current_steps_stepper2--;
-      TIM9->ARR = (uint32_t)((SystemCoreClock / (19 * current_steps_stepper2)));
-    }else if (stepper2_directionchange()){ // check if we have a direction change pending
-      // target was set to stopping speed ("jerk speed") where we can reverse stepper direction
-      // now set actual target velocity
-      target_sps_stepper2 = set_steps_stepper2;
-      // and change direction
-      stepper2_dir = stepper2_target_dir;
-      // and update (direction) output pin
-      HAL_GPIO_TogglePin(tmc2130_2_dir_GPIO_Port, tmc2130_2_dir_Pin);
-    }else{
-      // Speed achieved
-      done++;
-    }
-    if(done == 2)
-      HAL_TIM_Base_Stop_IT(&htim6);
+    update_stepper(&step1);
+  }else if(htim->Instance == TIM6){ // stepper 2
+    update_stepper(&step2);
   }
 }
 
