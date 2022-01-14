@@ -24,7 +24,7 @@ typedef enum {
 
 typedef enum {
     FORWARD = 0,
-    BACKWARD
+    BACKWARD = 1
 } Direction;
 
 typedef struct {
@@ -35,19 +35,24 @@ typedef struct {
     GPIO_TypeDef *Dir_Port;
     uint16_t Dir_Pin;
     TIM_HandleTypeDef *StepTimer;
+    uint8_t Forward;
+    uint8_t Backward;
 } Stepper_InitTypeDef;
 
 typedef struct {
     Stepper_InitTypeDef Init;
     //StepDir direction;
     RunState state;
-    Direction dir;
+    volatile Direction dir;
+    volatile Direction target_dir;
     // calc variables
     uint16_t min_delay;
     uint32_t step_delay;
     int16_t decel_val;
     int16_t accel_count;
     uint16_t decel_start;
+    uint16_t current_speed;
+    uint16_t last_acc_steps;
     // int var
     int16_t last_accel_delay;
     uint16_t step_count;
@@ -58,12 +63,13 @@ typedef struct {
 // Init stepper parameters etc
 void init_stepper(Stepper_HandleTypeDef *step, TIM_HandleTypeDef *timer,
     GPIO_TypeDef *step_port, uint16_t step_pin,
-    GPIO_TypeDef *dir_port, uint16_t dir_pin);
+    GPIO_TypeDef *dir_port, uint16_t dir_pin,
+    uint8_t side);
 
 // call from step timer interrupt
 void update_stepper(Stepper_HandleTypeDef *step);
 
 //void stepper_check_directionchange(Stepper_HandleTypeDef *step);
-void stepper_setangle(Stepper_HandleTypeDef *step, int16_t steps);
+void stepper_setangle(Stepper_HandleTypeDef *step, int16_t speed);
 
 #endif

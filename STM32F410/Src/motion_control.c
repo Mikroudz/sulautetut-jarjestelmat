@@ -1,7 +1,33 @@
 #include "motion_control.h"
 
-void pid(float meas_angle, float target){
+float last_meas = 0, out_sum = 0;
 
+int pid(float meas_angle, float target){
+    float error = target - meas_angle;
+
+    float meas_delta = meas_angle - last_meas;
+    // integral
+    out_sum += KI * error;
+
+    // propotional on measured angle
+    out_sum -= KP * meas_delta;
+    if (out_sum > MAX_VAL)
+        out_sum = MAX_VAL;
+    else if (out_sum < MIN_VAL)
+        out_sum = MIN_VAL;
+
+    // propotional on error
+    float ret = KP * error;
+    // derivative
+    ret += out_sum - KD * meas_delta;
+
+    if (ret > MAX_VAL)
+        ret = MAX_VAL;
+    else if (ret < MIN_VAL)
+        ret = MIN_VAL;
+
+    last_meas = meas_angle;
+    return (int)ret;
 }
 
 

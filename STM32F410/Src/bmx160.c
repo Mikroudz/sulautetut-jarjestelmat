@@ -56,6 +56,7 @@ uint8_t bmx160_init(bmx160 *imu, I2C_HandleTypeDef *i2c,
     imu->i2c = i2c;
     uint8_t buf[1] = {0};
     imu_softreset(imu);
+    HAL_Delay(50);
     write_register(imu, REG_CMD, 0x11);
     HAL_Delay(50);
     write_register(imu, REG_CMD, 0x15);
@@ -128,6 +129,6 @@ void imu_end_update(bmx160 *imu){
 
 void imu_softreset(bmx160 *imu){
     uint8_t buf = BMX160_SOFT_RESET_CMD;
-    write_register(imu, REG_CMD, &buf);
+    write_register(imu, REG_CMD, buf);
     HAL_Delay(BMX160_SOFT_RESET_DELAY_MS);
 }

@@ -173,7 +173,7 @@ int main(void)
   tmc2130_init(&stepper1, &hspi1,
     tmc2130_1_enable_GPIO_Port, tmc2130_1_nss_GPIO_Port, 
     tmc2130_1_enable_Pin, tmc2130_1_nss_Pin);
-
+    
   tmc2130_init(&stepper2, &hspi5,
     tmc2130_2_enable_GPIO_Port, tmc2130_2_nss_GPIO_Port, 
     tmc2130_2_enable_Pin, tmc2130_2_nss_Pin);
@@ -182,9 +182,9 @@ int main(void)
   bmx160_init(&imu, &hi2c1, GPIOA, GPIO_PIN_8);
 
   init_stepper(&step1, &htim5, tmc2130_1_step_GPIO_Port, tmc2130_1_step_Pin,
-              tmc2130_1_dir_GPIO_Port,tmc2130_1_dir_Pin);
+              tmc2130_1_dir_GPIO_Port,tmc2130_1_dir_Pin, 0);
   init_stepper(&step2, &htim6, tmc2130_2_step_GPIO_Port, tmc2130_2_step_Pin,
-              tmc2130_2_dir_GPIO_Port,tmc2130_2_dir_Pin);
+              tmc2130_2_dir_GPIO_Port,tmc2130_2_dir_Pin, 1);
 
   //**** LORA RECEIVE START ****//
   uint8_t lora_rx_buffer[128];
@@ -197,9 +197,9 @@ int main(void)
 
   HAL_Delay(10);
   
-  //stepper_enable(&stepper1);
-  //stepper_enable(&stepper2);
-
+  stepper_enable(&stepper1);
+  stepper_enable(&stepper2);
+  uint8_t low_speed = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -211,9 +211,13 @@ int main(void)
 
     // TEST function for stepper. Comment this out when using calc balance
     if(HAL_GetTick() - last_stepper_update > STEPPER_UPDATE_RATE){
-      stepper_setangle(&step1, 1000);
-      stepper_setangle(&step2, -1000);
+      //stepper_setangle(&step1, 100);
+      //stepper_setangle(&step2, -1000);
       last_stepper_update = HAL_GetTick();
+      low_speed = 0;
+    }else if (HAL_GetTick() - last_stepper_update > 500 && !low_speed){
+      //stepper_setangle(&step1, 1500);
+      low_speed = 1;
     }
 
     // run balance every 100 ms (set in CALC_BALANCE as milliseconds)
@@ -228,11 +232,13 @@ int main(void)
       gcvt(real_pitch, 4, str_buf);
       printf("pitch: %s\n", str_buf);
       //printf("x: %d y: %d z: %d\n", imu.acc.x, imu.acc.y, imu.acc.z);
-
-      // Filter gyro&accelerometer with complementary filter
-
       // Run PID
-
+      int target_speed = pid(real_pitch, 85.0);
+      printf("pid: %ld\n", target_speed);
+      stepper_setangle(&step1, target_speed);
+      stepper_setangle(&step2, target_speed);
+      //gcvt(target_speed, 4, str_buf);
+      //printf("pitch: %s\n", str_buf);
       // Set stepper speed & direction if needed
     }
 
