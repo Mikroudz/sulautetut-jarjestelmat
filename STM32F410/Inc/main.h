@@ -51,11 +51,23 @@ typedef struct {
 #define M_PI 3.14159265359
 
 // how often to run different functions in ms
-#define CALC_BALANCE 30 // main loop
+#define CALC_BALANCE 10 // main loop
 #define BLINK_LED 1000
-#define READ_IMU 20
+#define READ_IMU 10
 #define READ_VOLTAGE 500
 #define STEPPER_UPDATE_RATE 4000
+#define CALC_COMP 10
+
+// misc constants
+#define BATTERY_LOW 11.2 // volts
+
+typedef enum {
+  APP_READY = 0,
+  APP_RUN,
+  APP_STOP,
+  LOW_BATTERY,
+  INIT_FAIL
+} MainState_t;
 
 /* USER CODE END EC */
 
@@ -76,6 +88,8 @@ void Error_Handler(void);
 #define vcc_meas_GPIO_Port GPIOC
 #define tmc2130_1_nss_Pin GPIO_PIN_4
 #define tmc2130_1_nss_GPIO_Port GPIOA
+#define tmc2130_2_dir_Pin GPIO_PIN_4
+#define tmc2130_2_dir_GPIO_Port GPIOC
 #define tmc2130_2_step_Pin GPIO_PIN_5
 #define tmc2130_2_step_GPIO_Port GPIOC
 #define tmc2130_2_nss_Pin GPIO_PIN_1
@@ -103,8 +117,6 @@ void Error_Handler(void);
 #define IMU_i2C_SDA_GPIO_Port GPIOB
 #define lora_nreset_Pin GPIO_PIN_8
 #define lora_nreset_GPIO_Port GPIOB
-#define tmc2130_2_dir_Pin GPIO_PIN_9
-#define tmc2130_2_dir_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

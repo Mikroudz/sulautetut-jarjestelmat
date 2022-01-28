@@ -12,7 +12,10 @@
 #define REG_PMU_STATUS 0x03
 #define REG_CMD 0x7E
 #define REG_ACC_RANGE 0x41
+#define REG_GYRO_CONF 0x42
 #define REG_GYRO_RANGE 0x43
+#define REG_FOC_CONF 0x69
+#define REG_OFFSET 0x71
 
 /** Soft reset command */
 #define BMX160_SOFT_RESET_CMD                    0xb6
@@ -35,6 +38,9 @@
 #define BMX160_GYRO_RANGE_250_DPS                0x03
 #define BMX160_GYRO_RANGE_125_DPS                0x04
 
+/* Gyro Sample rate */
+#define BMX160_GYRO_SAMPLE_800HZ                0x0b
+
 /* Macro for mg per LSB at +/- 2g sensitivity (1 LSB = 0.000061035mg) */
 #define BMX160_ACCEL_MG_LSB_2G      0.000061035F
 /* Macro for mg per LSB at +/- 4g sensitivity (1 LSB = 0.000122070mg) */
@@ -55,6 +61,15 @@
 /* Gyroscope sensitivity at 2000dps */
 #define BMX160_GYRO_SENSITIVITY_2000DPS 0.0609756F
 
+#define G_X_COMP -19
+#define G_Y_COMP 11 
+#define G_Z_COMP -65
+#define A_X_COMP 8145
+#define A_Y_COMP -298
+#define A_Z_COMP 598
+
+
+
 typedef struct {
     I2C_HandleTypeDef   *i2c;
     GPIO_TypeDef        *int1_port;
@@ -70,7 +85,7 @@ typedef struct {
 
 uint8_t bmx160_init(bmx160 *imu, I2C_HandleTypeDef *i2c, 
     GPIO_TypeDef *int1_port,
-    GPIO_TypeDef *int1_pin
+    uint16_t int1_pin
     );
 void imu_start_update(bmx160 *imu);
 void imu_softreset(bmx160 *imu);

@@ -73,13 +73,17 @@
 volatile uint8_t imu_data_status = IMU_DATA_PENDING;
 volatile uint8_t lora_rx_status = LORA_RX_DATA_PENDING;
 volatile uint8_t adc_data_status = ADC_DATA_PENDING;
+volatile uint8_t uart_data_pending = 0;
 
+uint8_t UART6_rxBuffer;
+  uint8_t uart_rx_buf[32];
+  uint8_t uart_buf_pos = 0;
 Stepper_HandleTypeDef step1;
 Stepper_HandleTypeDef step2;
 
 //ADC 
 uint16_t adc_raw = 0;
-
+int steps = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,6 +102,7 @@ void adc_start(void){
     //uint16_t adc_raw = HAL_ADC_GetValue(&hadc1);
     //float voltage_meas = (float)adc_raw * (3.27 / 4095.0) * 5.0;
 }
+
 
 /* USER CODE END 0 */
 
@@ -145,17 +150,17 @@ int main(void)
   HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
 
-  HAL_Delay(1000);
+  HAL_Delay(100);
   RetargetInit(&huart6);
 
   uint32_t last_run_balance = 0;
   uint32_t last_read_voltage = 0;
   uint32_t last_blink = 0;
-  uint32_t last_read_imu = 0;
-  uint32_t last_stepper_update = 0;
+  uint32_t last_run_comp = 0;
+
+  MainState_t app_state = STOP;
 
   float real_pitch = 0;
-
 
   lora_sx1276 lora;
 
@@ -164,6 +169,7 @@ int main(void)
   if (res != LORA_OK) {
     // Initialization failed
     printf("Lora ei init koodi: %d\n", res);
+    app_state = INIT_FAIL;
   }else
     printf("lora init DONE\n");
 
@@ -179,12 +185,29 @@ int main(void)
     tmc2130_2_enable_Pin, tmc2130_2_nss_Pin);
 
   bmx160 imu;
-  bmx160_init(&imu, &hi2c1, GPIOA, GPIO_PIN_8);
+  uint8_t imu_status = bmx160_init(&imu, &hi2c1, GPIOA, GPIO_PIN_8);
+
+  while(imu_status > 0){
+    printf("IMU init kusi, pysaytetaan: %d\n", imu_status);
+    app_state = INIT_FAIL;
+    HAL_Delay(1000);
+  }
+
+  //bmx160_calibrate(&imu);
 
   init_stepper(&step1, &htim5, tmc2130_1_step_GPIO_Port, tmc2130_1_step_Pin,
               tmc2130_1_dir_GPIO_Port,tmc2130_1_dir_Pin, 0);
-  init_stepper(&step2, &htim6, tmc2130_2_step_GPIO_Port, tmc2130_2_step_Pin,
+  init_stepper(&step2, &htim9, tmc2130_2_step_GPIO_Port, tmc2130_2_step_Pin,
               tmc2130_2_dir_GPIO_Port,tmc2130_2_dir_Pin, 1);
+
+  //**** PID CONTROLLER INIT ****//
+  PID_TypeDef velocityPID = {.KP = 0.45, .KI = 0.2, .KD = 0.005, 
+                            .min = -15., .max = 15., .target = 0.};
+
+  PID_TypeDef anglePID= {.KP = 150., .KI = .05 , .KD = 1.2,
+                          .min = -1500, .max = 1500, 
+                          .target = 1.5};
+
 
   //**** LORA RECEIVE START ****//
   uint8_t lora_rx_buffer[128];
@@ -194,12 +217,20 @@ int main(void)
   lora_mode_receive_continuous(&lora);
 
   //**** LORA RECEIVE END ****//
-
   HAL_Delay(10);
-  
-  stepper_enable(&stepper1);
-  stepper_enable(&stepper2);
+
+
+  /*** Init complementary with actual data ***/
+
+  HAL_UART_Receive_IT(&huart6, uart_rx_buf, 2);
+
   uint8_t low_speed = 0;
+  uint8_t running = 0;
+  uint8_t balance_setup = 0;
+  float velocity = 0.;
+  int last_step_count = 0;
+  uint32_t iter = 0;
+  app_state = APP_RUN;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -208,51 +239,123 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-
-    // TEST function for stepper. Comment this out when using calc balance
-    if(HAL_GetTick() - last_stepper_update > STEPPER_UPDATE_RATE){
-      //stepper_setangle(&step1, 100);
-      //stepper_setangle(&step2, -1000);
-      last_stepper_update = HAL_GetTick();
-      low_speed = 0;
-    }else if (HAL_GetTick() - last_stepper_update > 500 && !low_speed){
-      //stepper_setangle(&step1, 1500);
-      low_speed = 1;
+    if(HAL_GetTick() - last_run_comp > CALC_COMP){
+      // run complementary filter on raw IMU values.
+      real_pitch = complementary_filter(&imu.acc, &imu.gyro, real_pitch);
+      // trigger new imu data fetch
+      imu_start_update(&imu);
+      last_run_comp = HAL_GetTick();
     }
 
-    // run balance every 100 ms (set in CALC_BALANCE as milliseconds)
+    // main balance loop
     if(HAL_GetTick() - last_run_balance > CALC_BALANCE){
       last_run_balance = HAL_GetTick();
 
-      // Calculate roll&pitch
-      // maybe need a mutex on imu values?
-      real_pitch = complementary_filter(&imu.acc, &imu.gyro, real_pitch);
-      //printf("pitch: %0.2f\n", real_pitch);
-      char str_buf[5];
-      gcvt(real_pitch, 4, str_buf);
-      printf("pitch: %s\n", str_buf);
-      //printf("x: %d y: %d z: %d\n", imu.acc.x, imu.acc.y, imu.acc.z);
-      // Run PID
-      int target_speed = pid(real_pitch, 85.0);
-      printf("pid: %ld\n", target_speed);
-      stepper_setangle(&step1, target_speed);
-      stepper_setangle(&step2, target_speed);
-      //gcvt(target_speed, 4, str_buf);
-      //printf("pitch: %s\n", str_buf);
-      // Set stepper speed & direction if needed
+      //printf("pitch: %d \n", (int)real_pitch);
+
+      if(abs((int)(real_pitch - 90.)) < 30 && app_state == APP_RUN)
+        running = 1; // start balancing
+      else{
+        running = 0;
+      }
+
+      if(balance_setup && running){
+        stepper_enable(&stepper1);
+        stepper_enable(&stepper2);
+        pid_reset(&anglePID);
+        pid_reset(&velocityPID);
+
+        velocity = 0.;
+        balance_setup = 0;
+        step1.step_count = 0;
+      }else if(!balance_setup && !running){
+        stepper_disable(&stepper1);
+        stepper_disable(&stepper2);
+        balance_setup = 1;
+      }
+      //printf("pitch: %d\n", (int)(real_pitch - 85.));
+      if(uart_data_pending){
+          uart_data_pending = 0;
+          if(uart_rx_buf[0] == 43){
+          }
+          if(uart_rx_buf[0] == 45){
+          }
+
+          if(uart_rx_buf[0] == '9'){
+            anglePID.KD += 0.5;
+          }
+          if(uart_rx_buf[0] == '6'){
+            anglePID.KD -= 0.5;
+          }
+
+
+          if(uart_rx_buf[0] == '8'){
+            velocityPID.KP += 0.01;
+          }
+          if(uart_rx_buf[0] == '5'){
+            velocityPID.KP -= 0.01;
+          }
+
+          if(uart_rx_buf[0] == '7'){
+            velocityPID.KD += 0.002;
+          }
+          if(uart_rx_buf[0] == '4'){
+            velocityPID.KD -= 0.002;
+          }
+
+
+          if(uart_rx_buf[0] == '1'){
+            anglePID.KP += 1.;
+          }
+          if(uart_rx_buf[0] == '0'){
+            anglePID.KP -= 1.;
+          }
+
+          printf("velocity ");
+          print_pid(&velocityPID);
+          printf("angle ");
+          print_pid(&anglePID);
+          HAL_UART_Receive_IT(&huart6, uart_rx_buf, 2);
+        }
+      // tasapainotus
+      if(running){
+        // 90 asteen korjaus. Tää pitäs tehä erilailla koska aiheuttaa gimbal lockkia
+        anglePID.new = real_pitch - 90.;
+        // PID, joka antaa moottorinopeuden
+        int target_speed = (int)pid_steps(&anglePID);
+        // lasketaan joka toinen kierros kulman korjaus perustuen 
+        if (iter % 2 == 0){
+          // Nopeus arvioidaan kalmanfiltterillä koska stepit eivät ole ns oikea fyysinen nopeus
+          velocityPID.new = kalmanfilter((float)(step1.step_count - last_step_count));
+          last_step_count = step1.step_count;
+          // asetetaan kohdekulma välillä +10 -10
+          anglePID.target = -pid_steps(&velocityPID);
+        }
+
+        printf("target angle: %d current speed: %d speed target: %d angle: %d steps: %d \n", 
+        (int)anglePID.target, (int) velocityPID.new, target_speed, (int)real_pitch, step1.step_count );
+        // stepperien nopeuden asettaminen
+        stepper_setangle(&step1, -target_speed);
+        stepper_setangle(&step2, target_speed);
+        iter++;
+      }
+      
     }
 
     // Read voltage to adc_raw every READ_VOLTAGE
     if(HAL_GetTick() - last_read_voltage > READ_VOLTAGE){
+      float voltage_meas = 0;
+      if(adc_raw > 0){
+        voltage_meas = (float)adc_raw * (3.27 / 4095.0) * 5.0;
+        if(voltage_meas < BATTERY_LOW){
+          app_state = LOW_BATTERY;
+          printf("Low voltage <11.1 \n");
+        }
+      }
       adc_start();
       last_read_voltage = HAL_GetTick();
     }
 
-    // Update imu values
-    if( HAL_GetTick() - last_read_imu > READ_IMU){
-      imu_start_update(&imu);
-      last_read_imu = HAL_GetTick();
-    }
 
     // Check if imu data is ready to be read
     if(imu_data_status == IMU_DATA_READY){
@@ -291,12 +394,12 @@ int main(void)
 
 
     // Check if adc (voltage) is correctly read and print it.
-    if(adc_data_status == ADC_DATA_READY){
-      char * buf[6];
-      gcvt((float)adc_raw * (3.27 / 4095.0) * 5.0, 3, buf);
+    //if(adc_data_status == ADC_DATA_READY){
+    //  char * buf[6];
+    //  gcvt((float)adc_raw * (3.27 / 4095.0) * 5.0, 3, buf);
       //printf("ADC val: %s\n", buf);
-      adc_data_status = ADC_DATA_PENDING;
-    }
+    //  adc_data_status = ADC_DATA_PENDING;
+    //}
 
 
     // blink one of leds every second
@@ -374,11 +477,16 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+    uart_data_pending = 1;
+}
+
 // ajastininterruptit
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim){
   if(htim->Instance == TIM5){ // stepper 1
     update_stepper(&step1);
-  }else if(htim->Instance == TIM6){ // stepper 2
+  }else if(htim->Instance == TIM9){ // stepper 2
     update_stepper(&step2);
   }
 }

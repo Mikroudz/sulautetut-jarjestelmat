@@ -123,7 +123,7 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
   HAL_Delay(10);
   write_GCONF(tmc);
   HAL_Delay(10);
-  write_IHOLD_RUN(tmc, 6, 20, 2);  
+  write_IHOLD_RUN(tmc, 15, 20, 4);  
   HAL_Delay(10);
   write_COOLCONF(tmc);
   //    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
@@ -175,7 +175,7 @@ uint32_t read_REG_PWMCONF(tmc2130 *tmc){
 void write_CHOPCONF(tmc2130 *tmc){
 
   uint32_t val = 0x000100C3;//0x00008008; = 0x0001 << 24;// MRES microstep resolution 0 //0x000100C3;
-  val |= 8 << 24; // fullstep
+  val |= 6 << 24; // fullstep
   val |= 1 << 28; // interpolation
   val |= 1 << 17; // Vsense = 1
   val |= 2 << 15; //TBL 1 = 24
