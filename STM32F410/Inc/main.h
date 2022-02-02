@@ -58,6 +58,18 @@ typedef struct {
 #define STEPPER_UPDATE_RATE 4000
 #define CALC_COMP 10
 
+// ADC status
+#define ADC_DATA_PENDING 0
+#define ADC_DATA_READY 1
+
+// Imu tilat
+#define IMU_DATA_PENDING 1
+#define IMU_DATA_READY 2
+
+// LoRa status
+#define LORA_RX_DATA_PENDING 1
+#define LORA_RX_DATA_READY 2
+
 // misc constants
 #define BATTERY_LOW 11.2 // volts
 

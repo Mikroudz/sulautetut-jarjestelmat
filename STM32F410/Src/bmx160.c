@@ -16,8 +16,6 @@ static void read_register(bmx160 *imu, uint8_t reg_addr, size_t data_len, uint8_
             printf("IMU i2c vituiks meni\n");
         }
     }
-
-    //return buf;
 }
 
 static void read_register_dma(bmx160 *imu, uint8_t reg_addr, size_t data_len, uint8_t *buf){
@@ -153,10 +151,7 @@ void bmx160_calibrate(bmx160 *imu){
     printf("gx: %d, gy: %d, gz: %d, gx: %d, gy: %d, gz: %d\n", 
     (int)(gx * BMX160_GYRO_SENSITIVITY_250DPS / 0.061), (int)(gy* BMX160_GYRO_SENSITIVITY_250DPS / 0.061), (int)(gz* BMX160_GYRO_SENSITIVITY_250DPS / 0.061),
     (int)(ax * BMX160_ACCEL_MG_LSB_4G * 10 / 3.9), (int)(ay* BMX160_ACCEL_MG_LSB_4G * 10 / 3.9), (int)(az* BMX160_ACCEL_MG_LSB_4G * 10 / 3.9));
-
-
     HAL_Delay(10000);
-
 }
 
 void imu_start_update(bmx160 *imu){

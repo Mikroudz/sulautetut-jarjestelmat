@@ -6,11 +6,9 @@ float pid_steps(PID_TypeDef *input){
 
     float timestep = (((float)CALC_BALANCE + 1.) / 1000.);
 
-
     float d = -(input->new - input->last) / timestep;
     //integral
     input->out_sum += input->KI * error * timestep;
-
 
     float p = input->KP * error;
 
@@ -94,11 +92,7 @@ float kalmanfilter(float input){
     covariance = (1 - k_temp * H_MEAS_REAL) * p0;
 
     return kalman_state;
-
 }
-
-
-uint32_t last_iter = 0;
 
 float complementary_filter(data_t *acc, data_t *gyro, float pitch){
     // Gyro raw value to angle and integrate. 131.2 is based on set gyro sensitivity

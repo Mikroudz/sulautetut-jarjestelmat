@@ -46,20 +46,6 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-// ADC status
-#define ADC_DATA_PENDING 0
-#define ADC_DATA_READY 1
-
-// Imu tilat
-#define IMU_DATA_PENDING 1
-#define IMU_DATA_READY 2
-
-// LoRa status
-#define LORA_RX_DATA_PENDING 1
-#define LORA_RX_DATA_READY 2
-
-
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -201,8 +187,8 @@ int main(void)
               tmc2130_2_dir_GPIO_Port,tmc2130_2_dir_Pin, 1);
 
   //**** PID CONTROLLER INIT ****//
-  PID_TypeDef velocityPID = {.KP = 0.45, .KI = 0.2, .KD = 0.005, 
-                            .min = -15., .max = 15., .target = 0.};
+  PID_TypeDef velocityPID = {.KP = 0.45, .KI = 0.18, .KD = 0.005, 
+                            .min = -13., .max = 13., .target = 0.};
 
   PID_TypeDef anglePID= {.KP = 150., .KI = .05 , .KD = 1.2,
                           .min = -1500, .max = 1500, 
@@ -224,10 +210,8 @@ int main(void)
 
   HAL_UART_Receive_IT(&huart6, uart_rx_buf, 2);
 
-  uint8_t low_speed = 0;
   uint8_t running = 0;
   uint8_t balance_setup = 0;
-  float velocity = 0.;
   int last_step_count = 0;
   uint32_t iter = 0;
   app_state = APP_RUN;
@@ -265,7 +249,6 @@ int main(void)
         pid_reset(&anglePID);
         pid_reset(&velocityPID);
 
-        velocity = 0.;
         balance_setup = 0;
         step1.step_count = 0;
       }else if(!balance_setup && !running){
@@ -323,7 +306,7 @@ int main(void)
         anglePID.new = real_pitch - 90.;
         // PID, joka antaa moottorinopeuden
         int target_speed = (int)pid_steps(&anglePID);
-        // lasketaan joka toinen kierros kulman korjaus perustuen 
+        // lasketaan joka toinen kierros kulman korjaus perustuen robotin oikeaan nopeuteen
         if (iter % 2 == 0){
           // Nopeus arvioidaan kalmanfiltterillä koska stepit eivät ole ns oikea fyysinen nopeus
           velocityPID.new = kalmanfilter((float)(step1.step_count - last_step_count));
