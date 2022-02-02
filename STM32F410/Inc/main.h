@@ -81,6 +81,14 @@ typedef enum {
   INIT_FAIL
 } MainState_t;
 
+typedef enum {
+  MOVE_STOP = 0,  
+  MOVE_FORWARD,
+  MOVE_REVERSE,
+  TURN_LEFT,
+  TURN_RIGHT
+} MoveDirection_t;
+
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/

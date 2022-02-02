@@ -148,6 +148,8 @@ int main(void)
 
   float real_pitch = 0;
 
+  MoveDirection_t robot_move = MOVE_STOP;
+
   lora_sx1276 lora;
 
   // SX1276 compatible module connected to SPI2, NSS pin connected to GPIO with label LORA_NSS
@@ -215,6 +217,9 @@ int main(void)
   int last_step_count = 0;
   uint32_t iter = 0;
   app_state = APP_RUN;
+
+  int left_motor_offset = 0, right_motor_offset = 0;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -315,14 +320,42 @@ int main(void)
           anglePID.target = -pid_steps(&velocityPID);
         }
 
-        printf("target angle: %d current speed: %d speed target: %d angle: %d steps: %d \n", 
-        (int)anglePID.target, (int) velocityPID.new, target_speed, (int)real_pitch, step1.step_count );
+
+        switch(robot_move){
+          case MOVE_STOP:
+            left_motor_offset = 0;
+            right_motor_offset = 0;
+            //velocityPID.out_sum = 0.;
+          break;
+          case MOVE_FORWARD:
+            left_motor_offset = 300;
+            right_motor_offset = 300;
+            velocityPID.out_sum = 0.;
+          break;
+          case MOVE_REVERSE:
+            left_motor_offset = -300;
+            right_motor_offset = -300;
+            velocityPID.out_sum = 0.;
+          break;
+          case TURN_LEFT:
+            left_motor_offset = 100;
+            right_motor_offset = -100;
+          break;
+          case TURN_RIGHT:
+            left_motor_offset = -100;
+            right_motor_offset = 100;
+          break;
+        }
+
+        //printf("target angle: %d current speed: %d speed target: %d angle: %d steps: %d \n", 
+        //(int)anglePID.target, (int) velocityPID.new, target_speed, (int)real_pitch, step1.step_count );
         // stepperien nopeuden asettaminen
-        stepper_setangle(&step1, -target_speed);
-        stepper_setangle(&step2, target_speed);
+
+        printf("vasen: %d oikea: %d \n", -(target_speed + left_motor_offset), (target_speed + right_motor_offset));
+        stepper_setangle(&step1, -(target_speed + left_motor_offset));
+        stepper_setangle(&step2, target_speed + right_motor_offset);
         iter++;
       }
-      
     }
 
     // Read voltage to adc_raw every READ_VOLTAGE
@@ -370,6 +403,10 @@ int main(void)
         printf("0x%x ", lora_rx_buffer[i]);
       }
       printf("\n");
+
+
+      robot_move = (MoveDirection_t)lora_rx_buffer[0];
+      
       
      // printf("'%s'\n", lora_rx_buffer);
       lora_rx_status = LORA_RX_DATA_PENDING;
