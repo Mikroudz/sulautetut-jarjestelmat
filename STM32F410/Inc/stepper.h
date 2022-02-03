@@ -44,14 +44,13 @@ typedef struct {
     GPIO_TypeDef *Dir_Port;
     uint16_t Dir_Pin;
     Stepper_InitTypeDef Init;
-    //StepDir direction;
-    RunState state;
+    // directionparams
     volatile Direction dir;
     volatile Direction target_dir;
     // calc variables
     uint32_t step_delay;
     uint32_t target_delay;
-    // int var
+    // step counting
     int step_count;
     uint8_t int_status;
 
@@ -66,7 +65,5 @@ void init_stepper(Stepper_HandleTypeDef *step, TIM_HandleTypeDef *timer,
 // call from step timer interrupt
 void update_stepper(Stepper_HandleTypeDef *step);
 
-//void stepper_check_directionchange(Stepper_HandleTypeDef *step);
-void stepper_setangle(Stepper_HandleTypeDef *step, int16_t speed);
-void step_stepper(Stepper_HandleTypeDef *step);
+void stepper_setspeed(Stepper_HandleTypeDef *step, int16_t speed);
 #endif

@@ -123,7 +123,7 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
   HAL_Delay(10);
   write_GCONF(tmc);
   HAL_Delay(10);
-  write_IHOLD_RUN(tmc, 15, 20, 4);  
+  write_IHOLD_RUN(tmc, 2, 20, 4);  
   HAL_Delay(10);
   write_COOLCONF(tmc);
   //    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));

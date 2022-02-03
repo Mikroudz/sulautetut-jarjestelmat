@@ -23,7 +23,7 @@ void init_stepper(Stepper_HandleTypeDef *step, TIM_HandleTypeDef *timer,
     HAL_GPIO_WritePin(dir_port,dir_pin, step->Init.Forward);
 }
 
-void stepper_setangle(Stepper_HandleTypeDef *step, int16_t speed){
+void stepper_setspeed(Stepper_HandleTypeDef *step, int16_t speed){
     //HAL_TIM_Base_Stop_IT(step->Init.StepTimer);
     uint16_t speed_target;
 
@@ -45,11 +45,6 @@ void stepper_setangle(Stepper_HandleTypeDef *step, int16_t speed){
         HAL_TIM_Base_Start_IT(step->Init.StepTimer);
     }
 }  
-
-void step_stepper(Stepper_HandleTypeDef *step){
-    HAL_GPIO_TogglePin(step->Init.Step_Port, step->Init.Step_Pin);
-
-}
 
 void update_stepper(Stepper_HandleTypeDef *step){
 

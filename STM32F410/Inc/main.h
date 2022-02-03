@@ -71,7 +71,7 @@ typedef struct {
 #define LORA_RX_DATA_READY 2
 
 // misc constants
-#define BATTERY_LOW 11.2 // volts
+#define BATTERY_LOW 11.1 // volts
 
 typedef enum {
   APP_READY = 0,

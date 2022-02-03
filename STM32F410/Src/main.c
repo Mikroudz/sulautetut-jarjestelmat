@@ -62,8 +62,7 @@ volatile uint8_t adc_data_status = ADC_DATA_PENDING;
 volatile uint8_t uart_data_pending = 0;
 
 uint8_t UART6_rxBuffer;
-  uint8_t uart_rx_buf[32];
-  uint8_t uart_buf_pos = 0;
+uint8_t uart_rx_buf[32];
 Stepper_HandleTypeDef step1;
 Stepper_HandleTypeDef step2;
 
@@ -146,8 +145,6 @@ int main(void)
 
   MainState_t app_state = STOP;
 
-  float real_pitch = 0;
-
   MoveDirection_t robot_move = MOVE_STOP;
 
   lora_sx1276 lora;
@@ -180,7 +177,7 @@ int main(void)
     app_state = INIT_FAIL;
     HAL_Delay(1000);
   }
-
+  // Run this only to get IMU calibration parameters
   //bmx160_calibrate(&imu);
 
   init_stepper(&step1, &htim5, tmc2130_1_step_GPIO_Port, tmc2130_1_step_Pin,
@@ -189,7 +186,7 @@ int main(void)
               tmc2130_2_dir_GPIO_Port,tmc2130_2_dir_Pin, 1);
 
   //**** PID CONTROLLER INIT ****//
-  PID_TypeDef velocityPID = {.KP = 0.45, .KI = 0.18, .KD = 0.005, 
+  PID_TypeDef velocityPID = {.KP = 0.45, .KI = 0.25, .KD = 0.005, 
                             .min = -13., .max = 13., .target = 0.};
 
   PID_TypeDef anglePID= {.KP = 150., .KI = .05 , .KD = 1.2,
@@ -207,18 +204,23 @@ int main(void)
   //**** LORA RECEIVE END ****//
   HAL_Delay(10);
 
-
-  /*** Init complementary with actual data ***/
-
   HAL_UART_Receive_IT(&huart6, uart_rx_buf, 2);
 
   uint8_t running = 0;
   uint8_t balance_setup = 0;
+  // remember stepper "speed"
   int last_step_count = 0;
+  // Main loop iteration counter
   uint32_t iter = 0;
-  app_state = APP_RUN;
-
+  // robot tilt
+  float real_pitch = 0;
+  // Offsets to motor speed while turning
   int left_motor_offset = 0, right_motor_offset = 0;
+  // voltage filtering
+  uint16_t battery_meas[4] = {0};
+  uint8_t battery_meas_pos = 0;
+
+  app_state = APP_RUN;
 
   /* USER CODE END 2 */
 
@@ -264,16 +266,22 @@ int main(void)
       //printf("pitch: %d\n", (int)(real_pitch - 85.));
       if(uart_data_pending){
           uart_data_pending = 0;
-          if(uart_rx_buf[0] == 43){
+          if(uart_rx_buf[0] == '8'){
+            robot_move = MOVE_FORWARD;
           }
-          if(uart_rx_buf[0] == 45){
+          if(uart_rx_buf[0] == '2'){
+            robot_move = MOVE_REVERSE;
+          }
+          if(uart_rx_buf[0] == '5'){
+            robot_move = MOVE_STOP;
           }
 
           if(uart_rx_buf[0] == '9'){
             anglePID.KD += 0.5;
           }
           if(uart_rx_buf[0] == '6'){
-            anglePID.KD -= 0.5;
+            robot_move = TURN_RIGHT;
+            //anglePID.KD -= 0.5;
           }
 
 
@@ -288,7 +296,8 @@ int main(void)
             velocityPID.KD += 0.002;
           }
           if(uart_rx_buf[0] == '4'){
-            velocityPID.KD -= 0.002;
+            robot_move = TURN_LEFT;
+            //velocityPID.KD -= 0.002;
           }
 
 
@@ -316,44 +325,47 @@ int main(void)
           // Nopeus arvioidaan kalmanfiltterillä koska stepit eivät ole ns oikea fyysinen nopeus
           velocityPID.new = kalmanfilter((float)(step1.step_count - last_step_count));
           last_step_count = step1.step_count;
+          if(robot_move == MOVE_FORWARD){
+            // unohda integraali kun liikutaan; muistetaan taas kun ollaan paikallaan
+            velocityPID.out_sum = 0.;
+            if(velocityPID.target < 15)
+              velocityPID.target += 0.5;
+          }else if(robot_move == MOVE_REVERSE){
+            velocityPID.out_sum = 0.;
+            if(velocityPID.target > -15)
+              velocityPID.target -= .5;
+          }else if(robot_move == MOVE_STOP){
+            velocityPID.target = 0.;
+          }
+
+
           // asetetaan kohdekulma välillä +10 -10
           anglePID.target = -pid_steps(&velocityPID);
         }
 
 
         switch(robot_move){
-          case MOVE_STOP:
-            left_motor_offset = 0;
-            right_motor_offset = 0;
-            //velocityPID.out_sum = 0.;
-          break;
-          case MOVE_FORWARD:
-            left_motor_offset = 300;
-            right_motor_offset = 300;
-            velocityPID.out_sum = 0.;
-          break;
-          case MOVE_REVERSE:
-            left_motor_offset = -300;
-            right_motor_offset = -300;
-            velocityPID.out_sum = 0.;
-          break;
           case TURN_LEFT:
-            left_motor_offset = 100;
+            left_motor_offset = 200;
             right_motor_offset = -100;
           break;
           case TURN_RIGHT:
-            left_motor_offset = -100;
+            left_motor_offset = -200;
             right_motor_offset = 100;
           break;
+
+          default:
+            left_motor_offset = 0;
+            right_motor_offset = 0;
+
         }
 
         //printf("target angle: %d current speed: %d speed target: %d angle: %d steps: %d \n", 
         //(int)anglePID.target, (int) velocityPID.new, target_speed, (int)real_pitch, step1.step_count );
         // stepperien nopeuden asettaminen
 
-        printf("vasen: %d oikea: %d \n", -(target_speed + left_motor_offset), (target_speed + right_motor_offset));
-        stepper_setangle(&step1, -(target_speed + left_motor_offset));
-        stepper_setangle(&step2, target_speed + right_motor_offset);
+        stepper_setspeed(&step1, -(target_speed + left_motor_offset));
+        stepper_setspeed(&step2, target_speed + right_motor_offset);
         iter++;
       }
     }
@@ -362,7 +374,20 @@ int main(void)
     if(HAL_GetTick() - last_read_voltage > READ_VOLTAGE){
       float voltage_meas = 0;
       if(adc_raw > 0){
-        voltage_meas = (float)adc_raw * (3.27 / 4095.0) * 5.0;
+        battery_meas[battery_meas_pos] = adc_raw;
+        if(battery_meas_pos < 4)
+          battery_meas_pos++;
+        else
+          battery_meas_pos = 0;
+        uint8_t meas_count = 0;
+        uint32_t batt_total = 0;
+        for(int i = 0; i < 4; i++){
+          if(battery_meas[i] > 0){
+            meas_count++;
+            batt_total += battery_meas[i];
+          }
+        }
+        voltage_meas = (float)(batt_total / meas_count) * (3.27 / 4095.0) * 5.0;
         if(voltage_meas < BATTERY_LOW){
           app_state = LOW_BATTERY;
           printf("Low voltage <11.1 \n");
