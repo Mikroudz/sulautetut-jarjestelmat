@@ -31,7 +31,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "lora_sx1276.h"
-#include "tmc2130.h"
 #include "bmx160.h"
 #include "stepper.h"
 #include "motion_control.h"
@@ -158,17 +157,6 @@ int main(void)
   }else
     printf("lora init DONE\n");
 
-  tmc2130 stepper1;
-  tmc2130 stepper2;
-
-  tmc2130_init(&stepper1, &hspi1,
-    tmc2130_1_enable_GPIO_Port, tmc2130_1_nss_GPIO_Port, 
-    tmc2130_1_enable_Pin, tmc2130_1_nss_Pin);
-    
-  tmc2130_init(&stepper2, &hspi5,
-    tmc2130_2_enable_GPIO_Port, tmc2130_2_nss_GPIO_Port, 
-    tmc2130_2_enable_Pin, tmc2130_2_nss_Pin);
-
   bmx160 imu;
   uint8_t imu_status = bmx160_init(&imu, &hi2c1, GPIOA, GPIO_PIN_8);
 
@@ -180,10 +168,16 @@ int main(void)
   // Run this only to get IMU calibration parameters
   //bmx160_calibrate(&imu);
 
-  init_stepper(&step1, &htim5, tmc2130_1_step_GPIO_Port, tmc2130_1_step_Pin,
-              tmc2130_1_dir_GPIO_Port,tmc2130_1_dir_Pin, 0);
-  init_stepper(&step2, &htim9, tmc2130_2_step_GPIO_Port, tmc2130_2_step_Pin,
-              tmc2130_2_dir_GPIO_Port,tmc2130_2_dir_Pin, 1);
+  init_stepper(&step1, &htim5, &hspi1, 
+              tmc2130_1_step_GPIO_Port, tmc2130_1_step_Pin,
+              tmc2130_1_dir_GPIO_Port, tmc2130_1_dir_Pin, 
+              tmc2130_1_enable_GPIO_Port, tmc2130_1_enable_Pin, 
+              tmc2130_1_nss_GPIO_Port, tmc2130_1_nss_Pin);
+  init_stepper(&step2, &htim9, &hspi5, 
+              tmc2130_2_step_GPIO_Port, tmc2130_2_step_Pin,
+              tmc2130_2_dir_GPIO_Port,tmc2130_2_dir_Pin,    
+              tmc2130_2_enable_GPIO_Port, tmc2130_2_enable_Pin, 
+              tmc2130_2_nss_GPIO_Port, tmc2130_2_nss_Pin);
 
   //**** PID CONTROLLER INIT ****//
   PID_TypeDef velocityPID = {.KP = 0.45, .KI = 0.25, .KD = 0.005, 
@@ -192,7 +186,6 @@ int main(void)
   PID_TypeDef anglePID= {.KP = 150., .KI = .05 , .KD = 1.2,
                           .min = -1500, .max = 1500, 
                           .target = 1.5};
-
 
   //**** LORA RECEIVE START ****//
   uint8_t lora_rx_buffer[128];
@@ -249,18 +242,19 @@ int main(void)
       else{
         running = 0;
       }
-
+      // start balancing
       if(balance_setup && running){
-        stepper_enable(&stepper1);
-        stepper_enable(&stepper2);
+        enable_stepper(&step1);
+        enable_stepper(&step2);
         pid_reset(&anglePID);
         pid_reset(&velocityPID);
 
         balance_setup = 0;
         step1.step_count = 0;
+      // stop
       }else if(!balance_setup && !running){
-        stepper_disable(&stepper1);
-        stepper_disable(&stepper2);
+        disable_stepper(&step1);
+        disable_stepper(&step2);
         balance_setup = 1;
       }
       //printf("pitch: %d\n", (int)(real_pitch - 85.));
@@ -462,7 +456,6 @@ int main(void)
     //  printf("Send fail: %d\n", res);
       // Send failed
     //}
-
   }
   /* USER CODE END 3 */
 }

@@ -96,6 +96,95 @@ static void write_register(tmc2130 *tmc, uint8_t address, uint32_t value)
   }
 }
 
+void tmc2130_enable(tmc2130 *tmc){
+  HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_RESET);
+}
+
+void tmc2130_disable(tmc2130 *tmc){
+  HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_SET);
+}
+
+static uint32_t read_REG_GCONF(tmc2130 *tmc){
+  return read_register(tmc, REG_GCONF);// & 0xffff8000;
+}
+
+static uint8_t read_REG_GSTAT(tmc2130 *tmc){
+  return (uint8_t)read_register(tmc, REG_GSTAT) & 0xffffff00;
+}
+
+static uint32_t read_REG_DRVSTATUS(tmc2130 *tmc){
+  
+  return read_register(tmc, REG_DRVSTATUS);
+}
+
+static uint32_t read_REG_PWMCONF(tmc2130 *tmc){
+  return read_register(tmc, REG_PWMCONF);
+}
+
+static void write_CHOPCONF(tmc2130 *tmc){
+
+  uint32_t val = 0x000100C3;//0x00008008; = 0x0001 << 24;// MRES microstep resolution 0 //0x000100C3;
+  val |= 6 << 24; // fullstep
+  val |= 1 << 28; // interpolation
+  val |= 1 << 17; // Vsense = 1
+  val |= 2 << 15; //TBL 1 = 24
+  val |= 2 << 4; // HSTRT
+  val |= 3 << 7; // HEND
+  val |= 3; //Toff
+  printf("Chopconf written: 0x%08x\n", val);
+  write_register(tmc, REG_CHOPCONF, val);
+}
+
+static void write_PWMCONF(tmc2130 *tmc){
+
+  uint32_t val = 0;//0x00008008; = 0x0001 << 24;// MRES microstep resolution 0 //0x000100C3;
+  val |= 3 << 8; // PWM_GRAD
+  val |= 1 << 18; // PWM automatic amplitude scaling
+  val |= 1 << 16; // pwm_freq0
+
+
+  val |= 255; // fullstep
+
+  printf("PWMCONF written: 0x%08x\n", val);
+  write_register(tmc, REG_PWMCONF, val);
+}
+
+static void write_IHOLD_RUN(tmc2130 *tmc, uint8_t ihold, uint8_t irun, uint8_t iholddelay) {
+  
+  uint32_t reg_value = 0;
+  reg_value |= (uint32_t) ihold;
+  reg_value |= ((uint32_t)irun << 8);
+  reg_value |= ((uint32_t)iholddelay << 16);
+  printf("Ihold written: 0x%08x\n", reg_value);
+
+  write_register(tmc, REG_IHOLD_IRUN, reg_value);
+}
+
+static void write_COOLCONF(tmc2130 *tmc) {
+  
+  uint32_t reg_value = 0;
+  printf("Coolconf written: 0x%08x\n", reg_value);
+
+  write_register(tmc, REG_COOLCONF, reg_value);
+}
+
+
+static void write_GCONF(tmc2130 *tmc){
+  uint32_t reg_value = 0;
+
+  reg_value |= 1 << 2; // PWM enable
+  reg_value |= 1; // AIN reference
+
+  printf("GCONF written: 0x%08x\n", reg_value);
+
+  write_register(tmc, REG_GCONF, reg_value);
+}
+
+static uint32_t read_REG_CHOPCONF(tmc2130 *tmc){
+  return read_register(tmc, REG_CHOPCONF);
+}
+
+
 uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi, 
     GPIO_TypeDef *enable_port,
     GPIO_TypeDef *nss_port,
@@ -111,7 +200,7 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
   tmc->nss_pin = nss_pin;
   tmc->spi_timeout = 1000;
 
-  stepper_disable(tmc);
+  tmc2130_disable(tmc);
   HAL_Delay(10);
 
     //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
@@ -137,111 +226,4 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
   printf("Read GSTAT: 0x%x\n\r", tmc->gstat_val);
 
   return 0;
-}
-
-/*void stepper_set_dir(tmc2130 *tmc, StepDir dir){
-  tmc->direction = dir;
-  if(dir == FORWARD)
-    HAL_GPIO_WritePin(tmc->direction_port, tmc->direction_pin, GPIO_PIN_RESET);
-  else
-    HAL_GPIO_WritePin(tmc->direction_port, tmc->direction_pin, GPIO_PIN_SET);
-}*/
-
-void stepper_enable(tmc2130 *tmc){
-  HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_RESET);
-}
-
-void stepper_disable(tmc2130 *tmc){
-  HAL_GPIO_WritePin(tmc->enable_port, tmc->enable_pin, GPIO_PIN_SET);
-}
-
-uint32_t read_REG_GCONF(tmc2130 *tmc){
-  return read_register(tmc, REG_GCONF);// & 0xffff8000;
-}
-
-uint8_t read_REG_GSTAT(tmc2130 *tmc){
-  return (uint8_t)read_register(tmc, REG_GSTAT) & 0xffffff00;
-}
-
-uint32_t read_REG_DRVSTATUS(tmc2130 *tmc){
-  
-  return read_register(tmc, REG_DRVSTATUS);
-}
-
-uint32_t read_REG_PWMCONF(tmc2130 *tmc){
-  return read_register(tmc, REG_PWMCONF);
-}
-
-void write_CHOPCONF(tmc2130 *tmc){
-
-  uint32_t val = 0x000100C3;//0x00008008; = 0x0001 << 24;// MRES microstep resolution 0 //0x000100C3;
-  val |= 6 << 24; // fullstep
-  val |= 1 << 28; // interpolation
-  val |= 1 << 17; // Vsense = 1
-  val |= 2 << 15; //TBL 1 = 24
-  val |= 2 << 4; // HSTRT
-  val |= 3 << 7; // HEND
-  val |= 3; //Toff
-  printf("Chopconf written: 0x%08x\n", val);
-  write_register(tmc, REG_CHOPCONF, val);
-}
-
-void write_PWMCONF(tmc2130 *tmc){
-
-  uint32_t val = 0;//0x00008008; = 0x0001 << 24;// MRES microstep resolution 0 //0x000100C3;
-  val |= 3 << 8; // PWM_GRAD
-  val |= 1 << 18; // PWM automatic amplitude scaling
-  val |= 1 << 16; // pwm_freq0
-
-
-  val |= 255; // fullstep
-
-  printf("PWMCONF written: 0x%08x\n", val);
-  write_register(tmc, REG_PWMCONF, val);
-}
-
-void write_IHOLD_RUN(tmc2130 *tmc, uint8_t ihold, uint8_t irun, uint8_t iholddelay) {
-  
-  uint32_t reg_value = 0;
-  reg_value |= (uint32_t) ihold;
-  reg_value |= ((uint32_t)irun << 8);
-  reg_value |= ((uint32_t)iholddelay << 16);
-  printf("Ihold written: 0x%08x\n", reg_value);
-
-  write_register(tmc, REG_IHOLD_IRUN, reg_value);
-}
-
-void write_COOLCONF(tmc2130 *tmc) {
-  
-  uint32_t reg_value = 0;
-  printf("Coolconf written: 0x%08x\n", reg_value);
-
-  write_register(tmc, REG_COOLCONF, reg_value);
-}
-
-
-void write_GCONF(tmc2130 *tmc){
-  uint32_t reg_value = 0;
-
-  reg_value |= 1 << 2; // PWM enable
-  reg_value |= 1; // AIN reference
-
-  printf("GCONF written: 0x%08x\n", reg_value);
-
-  write_register(tmc, REG_GCONF, reg_value);
-}
-
-uint32_t read_REG_CHOPCONF(tmc2130 *tmc){
-  return read_register(tmc, REG_CHOPCONF);
-}
-void stepper_step(tmc2130 *tmc, unsigned int steps){
-  for(int i = 0; i < steps; i++){
-    HAL_GPIO_WritePin(tmc->step_port, tmc->step_pin, GPIO_PIN_SET);
-    HAL_Delay(10);
-    HAL_GPIO_WritePin(tmc->step_port, tmc->step_pin, GPIO_PIN_RESET);
-  }
-}
-
-void stepper_update(tmc2130 *tmc){
-
 }
