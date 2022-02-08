@@ -66,14 +66,11 @@ def drive_event(message):
     GPIO.output(23, GPIO.HIGH)
     GPIO.output(24, GPIO.LOW)
     print(command)
-"""
-@socketio.event
-def reverse_event(message):
-    print(message)
 
 @socketio.event
-def rotate0_event(message):
+def send_message(message):
     print(message)
+"""
 
 @socketio.event
 def rotate1_event(message):
