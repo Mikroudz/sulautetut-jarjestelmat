@@ -34,6 +34,7 @@
 #include "bmx160.h"
 #include "stepper.h"
 #include "motion_control.h"
+#include "lora_app.h"
 
 /* USER CODE END Includes */
 
@@ -131,8 +132,7 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM9_Init();
   /* USER CODE BEGIN 2 */
-  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_8);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_15, GPIO_PIN_SET);
+
 
   HAL_Delay(100);
   RetargetInit(&huart6);
@@ -141,12 +141,17 @@ int main(void)
   uint32_t last_read_voltage = 0;
   uint32_t last_blink = 0;
   uint32_t last_run_comp = 0;
+  uint32_t last_lora_tx = 0;
+  uint32_t last_lora_meas = 0;
 
   MainState_t app_state = STOP;
 
   MoveDirection_t robot_move = MOVE_STOP;
 
   lora_sx1276 lora;
+  // Lora Nreset
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
+
 
   // SX1276 compatible module connected to SPI2, NSS pin connected to GPIO with label LORA_NSS
   uint8_t res = lora_init(&lora, &hspi2, GPIOB, GPIO_PIN_9, LORA_BASE_FREQUENCY_EU);
@@ -212,6 +217,8 @@ int main(void)
   // voltage filtering
   uint16_t battery_meas[4] = {0};
   uint8_t battery_meas_pos = 0;
+  // measurement results for sending
+  RobotData_t robot_data;
 
   app_state = APP_RUN;
 
@@ -381,6 +388,7 @@ int main(void)
             batt_total += battery_meas[i];
           }
         }
+        robot_data.voltage = (uint16_t)(batt_total / meas_count);
         voltage_meas = (float)(batt_total / meas_count) * (3.27 / 4095.0) * 5.0;
         if(voltage_meas < BATTERY_LOW){
           app_state = LOW_BATTERY;
@@ -406,7 +414,7 @@ int main(void)
       // LoRa receive check
       // Wait for packet up to 10sec
       uint8_t res;
-      uint8_t len = lora_receive_packet_dma_start(&lora, lora_rx_buffer, sizeof(lora_rx_buffer), &res);
+      uint8_t len = lora_receive_packet_blocking(&lora, lora_rx_buffer, sizeof(lora_rx_buffer), 10000, &res);
 
       //uint8_t len = lora_receive_packet_blocking(&lora, lora_rx_buffer, sizeof(lora_rx_buffer), 10000, &res);
       if (res != LORA_OK) {
@@ -423,7 +431,7 @@ int main(void)
       }
       printf("\n");
 
-
+      lora_parse_message(lora_rx_buffer);
       robot_move = (MoveDirection_t)lora_rx_buffer[0];
       
       
@@ -441,12 +449,48 @@ int main(void)
     //}
 
 
-    // blink one of leds every second
+    // blink one led every second
     if(HAL_GetTick() - last_blink > BLINK_LED){
+
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
-      last_blink = HAL_GetTick();
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_10);
+      //HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_15);
+      if(running)
+        last_blink = HAL_GetTick();
+      else
+        last_blink = HAL_GetTick() - 900;
     }
 
+    // poll if we have messages to send
+    if(HAL_GetTick() - last_lora_tx > SEND_LORA_TX){
+
+      uint8_t tx_len = 0;
+      uint8_t lora_tx_msg[15] = {};
+
+      if(last_lora_meas % 5 == 0){
+        tx_len = lora_create_measurement_message(&robot_data, lora_tx_msg);
+        last_lora_meas = 0;
+      }else if(robot_data.send_pid == PID_SEND_ANGLE){
+        tx_len = lora_create_pid_message(&anglePID, lora_tx_msg, 'A');
+        robot_data.send_pid = PID_SEND_ANGLE;
+      }else if(robot_data.send_pid == PID_SEND_VELOCITY){
+        tx_len = lora_create_pid_message(&velocityPID, lora_tx_msg, 'V');
+        robot_data.send_pid = 0;
+      }
+
+
+      // actually send data if we have any
+      if (tx_len > 0){
+        uint8_t res = lora_send_packet(&lora, lora_tx_msg, 12);
+        if (res != LORA_OK) {
+          printf("Send fail: %d\n", res);
+        // Send failed
+        }
+      }
+
+      last_lora_meas++;
+      last_lora_tx = HAL_GetTick();
+    }
 
     // Send packet can be as simple as
     // Receive buffer

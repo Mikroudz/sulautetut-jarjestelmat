@@ -461,6 +461,9 @@ static uint8_t lora_send_packet_base(lora_sx1276 *lora, uint8_t *data, uint8_t d
   if (lora_is_transmitting(lora)) {
     return LORA_BUSY;
   }
+  //set send
+  HAL_GPIO_WritePin(lora_rx_enable_GPIO_Port, lora_rx_enable_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(lora_tx_enable_GPIO_Port, lora_tx_enable_Pin, GPIO_PIN_SET);
 
   // Wakeup radio because of FIFO is only available in STANDBY mode
   set_mode(lora, OPMODE_STDBY);

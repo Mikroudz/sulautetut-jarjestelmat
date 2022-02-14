@@ -52,11 +52,13 @@ typedef struct {
 
 // how often to run different functions in ms
 #define CALC_BALANCE 10 // main loop
-#define BLINK_LED 1000
+#define BLINK_LED 100
 #define READ_IMU 10
 #define READ_VOLTAGE 500
 #define STEPPER_UPDATE_RATE 4000
 #define CALC_COMP 10
+#define SEND_LORA_MEAS 1000
+#define SEND_LORA_TX 100
 
 // ADC status
 #define ADC_DATA_PENDING 0
@@ -73,6 +75,10 @@ typedef struct {
 // misc constants
 #define BATTERY_LOW 11.1 // volts
 
+// Which pid parameters to send
+#define PID_SEND_ANGLE 1
+#define PID_SEND_VELOCITY 2
+
 typedef enum {
   APP_READY = 0,
   APP_RUN,
@@ -88,6 +94,17 @@ typedef enum {
   TURN_LEFT,
   TURN_RIGHT
 } MoveDirection_t;
+
+typedef struct {
+  uint16_t voltage;
+  uint16_t distance_front;
+  uint16_t distance_rear;
+  uint16_t illumination;
+  uint16_t tempereature;
+  uint8_t robot_status;
+  uint8_t send_pid;
+
+} RobotData_t;
 
 /* USER CODE END EC */
 
