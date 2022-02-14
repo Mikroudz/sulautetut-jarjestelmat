@@ -52,6 +52,10 @@
                 $('#ping-pong').text(Math.round(10 * sum / ping_pong_times.length) / 10);
             });
 
+            socket.on('update_info', function(msg){  
+               document.querySelector('div#update').innerHTML=msg.data;
+            });
+
             // Handlers for the different forms in the page.
             // These accept data from the user and send it to the server in a
             // variety of ways
@@ -63,6 +67,16 @@
                 }, 1000);
             });
 
+            $("#Update").click(function() {
+                velocity = ["D", "V"];
+                socket.emit('update_event', velocity)
+                return false;
+            }); 
+            $('form#send').submit(function(event) {
+                parameters = [$('#send_p1').val(), $('#send_p2').val()];
+                socket.emit('send_event', parameters);
+                return false;
+            });
             $("#Forward").mousedown(function() {
                 mode = 1;
                 return false;
@@ -102,10 +116,16 @@
 <body>
     <h1>Robot GUI</h1>
     <div>Control the robot by pressing buttons </div>
-    <button id=Start>Start</button><br>
-    <button id=Forward>Forward</button><br>
-    <button id=Rotate0>Rotate clockwise</button>
-    <button id=Rotate1>Rotate anti-clockwise</button><br>
-    <button id="Reverse">Reverse</button>
+    <button id="Start">Start</button><br>
+    <button id="Forward">Forward</button><br>
+    <button id="Rotate0">Rotate anti-clockwise</button>
+    <button id="Rotate1">Rotate clockwise</button><br>
+    <button id="Reverse">Reverse</button><br>
+    <form id="send" method="POST" action='#'>
+        <input type="number" name="send_p1" id="send_p1" placeholder="0.0" step="0.01"><br>
+        <input type="number" name="send_p2" id="send_p2" placeholder="0.0" step="0.01"><br>
+        <input type="submit" value="Send"><br>
+    <button id="Update">Update</button><br>
+    <div id="update"></div>
 </body>
 </html>

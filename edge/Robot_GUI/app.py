@@ -2,6 +2,8 @@
 
 #!/usr/bin/env python
 import sys
+import time
+import struct
 from threading import Lock
 from flask import Flask, render_template, session, request, \
     copy_current_request_context
@@ -11,36 +13,39 @@ from SX127x.LoRa import *
 from SX127x.LoRaArgumentParser import LoRaArgumentParser
 from SX127x.board_config import BOARD
 import RPi.GPIO as GPIO
-
-
+app = Flask(__name__)
+socketio = SocketIO(app, async_mode=None)
+lora = LoRa()
 BOARD.setup()
 
-lora = LoRa()
-lora.set_mode(MODE.STDBY)
-lora.set_pa_config(pa_select=1)
-lora.set_dio_mapping([1,0,0,0,0,0])
-GPIO.setup(23, GPIO.OUT)
-GPIO.setup(24, GPIO.OUT)
+def main():
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup([23, 24], GPIO.OUT)
+    lora.set_mode(MODE.STDBY)
+    lora.set_pa_config(pa_select=1)
+    lora.set_dio_mapping([1,0,0,0,0,0])
+    rx_mode()
 
 
-parser = LoRaArgumentParser("A simple LoRa beacon")
-parser.add_argument('--single', '-S', dest='single', default=False, action="store_true", help="Single transmission")
-parser.add_argument('--wait', '-w', dest='wait', default=1, action="store", type=float, help="Waiting time between transmissions (default is 0s)")
+    parser = LoRaArgumentParser("A simple LoRa beacon")
+    parser.add_argument('--single', '-S', dest='single', default=False, action="store_true", help="Single transmission")
+    parser.add_argument('--wait', '-w', dest='wait', default=1, action="store", type=float, help="Waiting time between transmissions (default is 0s)")
 
-args = parser.parse_args(lora)
-#from lora.tx_command import LoRaBeacon
+    args = parser.parse_args(lora)
+    #from lora.tx_command import LoRaBeacon
 
-# Set this variable to "threading", "eventlet" or "gevent" to test the
-# different async modes, or leave it set to None for the application to choose
-# the best option based on installed packages.
-async_mode = None
+    # Set this variable to "threading", "eventlet" or "gevent" to test the
+    # different async modes, or leave it set to None for the application to choose
+    # the best option based on installed packages.
+    async_mode = None
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, async_mode=async_mode)
-thread = None
-thread_lock = Lock()
-#lora = LoRaBeacon(verbose=False)
+    app.config['SECRET_KEY'] = 'secret!'
+    thread = None
+    thread_lock = Lock()
+    lora.set_freq(868)
+    socketio.run(app)
+    print(lora)
+    #lora = LoRaBeacon(verbose=False)
 
 def background_thread():
     #Example of how to send server generated events to clients.
@@ -51,6 +56,15 @@ def background_thread():
         socketio.emit('my_response',
                       {'data': 'Server generated event', 'count': count})
 
+def tx_mode():
+    lora.set_mode(MODE.TX)
+    GPIO.output(23, GPIO.HIGH)
+    GPIO.output(24, GPIO.LOW)
+
+def rx_mode():
+    GPIO.output(24, GPIO.HIGH)
+    GPIO.output(23, GPIO.LOW)
+    lora.set_mode(MODE.RXCONT)
 
 @app.route('/')
 def index():
@@ -62,14 +76,43 @@ def drive_event(message):
     #lora.start(message)
     command = [message] 
     lora.write_payload(command)
-    lora.set_mode(MODE.TX)
-    GPIO.output(23, GPIO.HIGH)
-    GPIO.output(24, GPIO.LOW)
+    tx_mode()
     print(command)
+    rx_mode()
 
 @socketio.event
-def send_message(message):
+def send_event(message):
+    #print(type(message))
+    package = list(struct.pack('>f', float(message[0])))
+    package += list(struct.pack('>f', float(message[1])))
+    lora.write_payload(package)
+    tx_mode()
+    print(float(message[0]))
+    print(float(message[1]))
+    print(package)
+    rx_mode()
+
+@socketio.event
+def update_event(message):
     print(message)
+    test =[20, 21, 22]
+    #test = [ord(s.encode("ASCII", "ignore")) for s in message]
+    print(test)
+    lora.write_payload(test)
+    tx_mode()
+    rx_mode()
+
+def on_rx_done(self):
+    print("\nRxDone")
+    self.clear_irq_flags(RxDone=1)
+    payload = self.read_payload(nocheck=True )
+    print(payload)
+    info = payload #struct.unpack('<f', payload)
+    #print(info)
+    emit('update_info',{'data': info})
+
+
+
 """
 
 @socketio.event
@@ -145,8 +188,7 @@ def test_disconnect():
 
 
 if __name__ == '__main__':
-    lora.set_freq(868)
-    socketio.run(app)
-    print(lora)
+    main()
+
 assert(lora.get_agc_auto_on() == 1)
 BOARD.teardown()
