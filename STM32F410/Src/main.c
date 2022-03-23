@@ -249,21 +249,7 @@ int main(void)
       else{
         running = 0;
       }
-      // start balancing
-      if(balance_setup && running){
-        enable_stepper(&step1);
-        enable_stepper(&step2);
-        pid_reset(&anglePID);
-        pid_reset(&velocityPID);
 
-        balance_setup = 0;
-        step1.step_count = 0;
-      // stop
-      }else if(!balance_setup && !running){
-        disable_stepper(&step1);
-        disable_stepper(&step2);
-        balance_setup = 1;
-      }
       //printf("pitch: %d\n", (int)(real_pitch - 85.));
       if(uart_data_pending){
           uart_data_pending = 0;
@@ -317,13 +303,39 @@ int main(void)
         }
       // tasapainotus
       if(running){
+        // first round when starting
+        if(balance_setup == 1){
+
+          stepper_setspeed(&step1, 0);
+          stepper_setspeed(&step2, 0);
+          enable_stepper(&step1);
+          enable_stepper(&step2);
+          pid_reset(&anglePID);
+          pid_reset(&velocityPID);
+        
+          balance_setup++;
+          step1.step_count = 0;
+          last_step_count = 0;
+        }else if(balance_setup > 0){
+          // wait for upright position
+          if(fabs(real_pitch - 90.) < 3.){
+            if(balance_setup < 30)
+              balance_setup++;
+            else{
+              balance_setup = 0;
+              // init values used in calculations
+              anglePID.last = real_pitch - 90.;
+            }
+          }
+        }else{ // actual balance
+          
         // 90 asteen korjaus. Tää pitäs tehä erilailla koska aiheuttaa gimbal lockkia
         anglePID.new = real_pitch - 90.;
         // PID, joka antaa moottorinopeuden
         int target_speed = (int)pid_steps(&anglePID);
         // lasketaan joka toinen kierros kulman korjaus perustuen robotin oikeaan nopeuteen
         if (iter % 2 == 0){
-          // Nopeus arvioidaan kalmanfiltterillä koska stepit eivät ole ns oikea fyysinen nopeus
+          // Nopeus arvioidaan kalmanfiltterillä koska stepit eivät ole robotin oikea fyysinen nopeus
           velocityPID.new = kalmanfilter((float)(step1.step_count - last_step_count));
           last_step_count = step1.step_count;
           if(robot_move == MOVE_FORWARD){
@@ -368,7 +380,12 @@ int main(void)
         stepper_setspeed(&step1, -(target_speed + left_motor_offset));
         stepper_setspeed(&step2, target_speed + right_motor_offset);
         iter++;
-      }
+        }
+      }else{
+          disable_stepper(&step1);
+          disable_stepper(&step2);
+          balance_setup = 1;
+        }
     }
 
     // Read voltage to adc_raw every READ_VOLTAGE
