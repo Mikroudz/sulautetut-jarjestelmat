@@ -15,70 +15,74 @@ from SX127x.board_config import BOARD
 import RPi.GPIO as GPIO
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode=None)
-lora = LoRa()
 BOARD.setup()
+parser = LoRaArgumentParser("A simple LoRa beacon")
+parser.add_argument('--single', '-S', dest='single', default=False, action="store_true", help="Single transmission")
+parser.add_argument('--wait', '-w', dest='wait', default=1, action="store", type=float, help="Waiting time between transmissions (default is 0s)")
+thread = None
+thread_lock = Lock()
 
-def main():
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup([23, 24], GPIO.OUT)
-    lora.set_mode(MODE.STDBY)
-    lora.set_pa_config(pa_select=1)
-    lora.set_dio_mapping([1,0,0,0,0,0])
-    rx_mode()
+class RobotLora(LoRa):
+    def __init__(self):
+        #super(RobotLora, self).__init__(True)
+        GPIO.setup([23, 24], GPIO.OUT)
+        self.set_mode(MODE.STDBY)
+        self.set_pa_config(pa_select=1)
+        self.set_dio_mapping([0,0,0,0,0,0])
+        self.set_freq(868)
+        self.set_coding_rate(CODING_RATE.CR4_8)
+        self.reset_ptr_rx()
+        print("test")
+        #from lora.tx_command import LoRaBeacon
 
+        # Set this variable to "threading", "eventlet" or "gevent" to test the
+        # different async modes, or leave it set to None for the application to choose
+        # the best option based on installed packages.
 
-    parser = LoRaArgumentParser("A simple LoRa beacon")
-    parser.add_argument('--single', '-S', dest='single', default=False, action="store_true", help="Single transmission")
-    parser.add_argument('--wait', '-w', dest='wait', default=1, action="store", type=float, help="Waiting time between transmissions (default is 0s)")
+        #lora = LoRaBeacon(verbose=False)
 
-    args = parser.parse_args(lora)
-    #from lora.tx_command import LoRaBeacon
+    def tx_mode(self):
+        GPIO.output(23, GPIO.HIGH)
+        GPIO.output(24, GPIO.LOW)
+        self.set_mode(MODE.TX)
 
-    # Set this variable to "threading", "eventlet" or "gevent" to test the
-    # different async modes, or leave it set to None for the application to choose
-    # the best option based on installed packages.
-    async_mode = None
+    def rx_mode(self):
+        GPIO.output(24, GPIO.HIGH)
+        GPIO.output(23, GPIO.LOW)
+        self.set_mode(MODE.RXCONT)
 
-    app.config['SECRET_KEY'] = 'secret!'
-    thread = None
-    thread_lock = Lock()
-    lora.set_freq(868)
-    socketio.run(app)
-    print(lora)
-    #lora = LoRaBeacon(verbose=False)
+    def on_rx_done(self):
+        print("\nRxDone")
+        self.clear_irq_flags(RxDone=1)
+        payload = self.read_payload(nocheck=True )
+        self.set_mode(MODE.SLEEP)
+        self.reset_ptr_rx()
+        print(payload)
+        info = payload #struct.unpack('<f', payload)
+        #print(info)
+        emit('update_info',{'data': info})
+    
+    def on_tx_done(self):
+        print(self.get_irq_flags)
 
-def background_thread():
-    #Example of how to send server generated events to clients.
-    count = 0
-    while True:
-        socketio.sleep(10)
-        count += 1
-        socketio.emit('my_response',
-                      {'data': 'Server generated event', 'count': count})
-
-def tx_mode():
-    lora.set_mode(MODE.TX)
-    GPIO.output(23, GPIO.HIGH)
-    GPIO.output(24, GPIO.LOW)
-
-def rx_mode():
-    GPIO.output(24, GPIO.HIGH)
-    GPIO.output(23, GPIO.LOW)
-    lora.set_mode(MODE.RXCONT)
+lora = RobotLora()
+args = parser.parse_args(lora)
 
 @app.route('/')
+
 def index():
     return render_template('index.html', async_mode=socketio.async_mode)
 
 
 @socketio.event
 def drive_event(message):
+    print(lora.get_modem_status())
     #lora.start(message)
     command = [message] 
     lora.write_payload(command)
-    tx_mode()
+    lora.tx_mode()
     print(command)
-    rx_mode()
+    lora.rx_mode()
 
 @socketio.event
 def send_event(message):
@@ -86,11 +90,11 @@ def send_event(message):
     package = list(struct.pack('>f', float(message[0])))
     package += list(struct.pack('>f', float(message[1])))
     lora.write_payload(package)
-    tx_mode()
+    lora.tx_mode()
     print(float(message[0]))
     print(float(message[1]))
     print(package)
-    rx_mode()
+    lora.rx_mode()
 
 @socketio.event
 def update_event(message):
@@ -99,20 +103,17 @@ def update_event(message):
     #test = [ord(s.encode("ASCII", "ignore")) for s in message]
     print(test)
     lora.write_payload(test)
-    tx_mode()
-    rx_mode()
+    lora.tx_mode()
+    lora.rx_mode()
 
-def on_rx_done(self):
-    print("\nRxDone")
-    self.clear_irq_flags(RxDone=1)
-    payload = self.read_payload(nocheck=True )
-    print(payload)
-    info = payload #struct.unpack('<f', payload)
-    #print(info)
-    emit('update_info',{'data': info})
-
-
-
+def background_thread():
+    #Example of how to send server generated events to clients.
+    count = 0
+    while True:
+        socketio.sleep(10)
+        count += 1
+        socketio.emit('my_response',
+                    {'data': 'Server generated event', 'count': count})
 """
 
 @socketio.event
@@ -188,7 +189,21 @@ def test_disconnect():
 
 
 if __name__ == '__main__':
-    main()
+    lora.set_freq(868)
+    lora.set_coding_rate(CODING_RATE.CR4_8)
+    lora.set_pa_config(pa_select=1)
+    lora.set_dio_mapping([0,0,0,0,0,0])
+    lora.set_preamble(10)
+    lora.set_fifo_rx_base_addr(0)
+    lora.clear_irq_flags(RxDone=1)
+    lora.reset_ptr_rx()
+    lora.rx_mode()
+    assert(lora.get_agc_auto_on() == 1)
+    async_mode = None
+    app.config['SECRET_KEY'] = 'secret!'
+    socketio.run(app)
+    lora.set_mode(MODE.STDBY)
+    print(lora)
+    
 
-assert(lora.get_agc_auto_on() == 1)
 BOARD.teardown()
