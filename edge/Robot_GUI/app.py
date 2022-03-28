@@ -4,7 +4,8 @@
 import sys
 import time
 import struct
-from threading import Lock
+from threading import Lock, Thread
+from queue import Queue
 from flask import Flask, render_template, session, request, \
     copy_current_request_context
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
@@ -13,8 +14,9 @@ from SX127x.LoRa import *
 from SX127x.LoRaArgumentParser import LoRaArgumentParser
 from SX127x.board_config import BOARD
 import RPi.GPIO as GPIO
+
 app = Flask(__name__)
-socketio = SocketIO(app, async_mode=None)
+socketio = SocketIO(app, async_mode="threading")
 BOARD.setup()
 parser = LoRaArgumentParser("A simple LoRa beacon")
 parser.add_argument('--single', '-S', dest='single', default=False, action="store_true", help="Single transmission")
@@ -24,7 +26,7 @@ thread_lock = Lock()
 
 class RobotLora(LoRa):
     def __init__(self):
-        #super(RobotLora, self).__init__(True)
+        super(RobotLora, self).__init__(True)
         GPIO.setup([23, 24], GPIO.OUT)
         self.set_mode(MODE.STDBY)
         self.set_pa_config(pa_select=1)
@@ -33,6 +35,8 @@ class RobotLora(LoRa):
         self.set_coding_rate(CODING_RATE.CR4_8)
         self.reset_ptr_rx()
         print("test")
+        self.q = Queue()
+        self.rx_reader = Thread(target=self.start_rx, args=(self.q,))
         #from lora.tx_command import LoRaBeacon
 
         # Set this variable to "threading", "eventlet" or "gevent" to test the
@@ -60,10 +64,20 @@ class RobotLora(LoRa):
         print(payload)
         info = payload #struct.unpack('<f', payload)
         #print(info)
-        emit('update_info',{'data': info})
+        socketio.emit('update_info',{'data': info})
+        self.rx_mode()
     
     def on_tx_done(self):
         print(self.get_irq_flags)
+
+    def start_rx(self, q_in):
+        #print("start rx")
+        while(True):
+            #print(self.get_irq_flags())
+            if self.get_irq_flags()["rx_done"] == 1:
+                self.on_rx_done()
+            time.sleep(0.1)
+
 
 lora = RobotLora()
 args = parser.parse_args(lora)
@@ -199,6 +213,10 @@ if __name__ == '__main__':
     lora.reset_ptr_rx()
     lora.rx_mode()
     assert(lora.get_agc_auto_on() == 1)
+    #while(True):
+        #print(lora.get_irq_flags())
+        #time.sleep(0.5)
+    lora.rx_reader.start()
     async_mode = None
     app.config['SECRET_KEY'] = 'secret!'
     socketio.run(app)
