@@ -18,7 +18,7 @@
 #define LORA_DEFAULT_SF                    7
 #define LORA_DEFAULT_PREAMBLE_LEN          10
 #define LORA_DEFAULT_RX_ADDR               0
-#define LORA_DEFAULT_TX_ADDR               0
+#define LORA_DEFAULT_TX_ADDR               0x80
 #define LORA_DEFAULT_SPI_TIMEOUT           1000 // ms
 
 #define LORA_COMPATIBLE_VERSION            0x12U

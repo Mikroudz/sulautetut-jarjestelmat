@@ -68,6 +68,8 @@ uint8_t bmx160_init(bmx160 *imu, I2C_HandleTypeDef *i2c,
     // set acc range 4G == 0b0101
     uint8_t ret = write_register(imu, REG_ACC_RANGE, BMX160_ACCEL_RANGE_4G);
 
+    ret |= write_register(imu, REG_NV_CONF, BMX160_I2C_WATCHDOG_ENABLE);
+
     // set gyro range +-250 deg/s
     ret |= write_register(imu, REG_GYRO_RANGE, BMX160_GYRO_RANGE_250_DPS);
 

@@ -185,6 +185,17 @@ void lora_print_config(lora_sx1276 *lora){
 
 static void set_mode(lora_sx1276 *lora, uint8_t mode)
 {
+  if(mode == OPMODE_TX){
+    //set send
+    HAL_GPIO_WritePin(lora_rx_enable_GPIO_Port, lora_rx_enable_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(lora_tx_enable_GPIO_Port, lora_tx_enable_Pin, GPIO_PIN_SET);
+  }else if(mode == OPMODE_RX_CONTINUOUS){
+    //set receive
+    HAL_GPIO_WritePin(lora_rx_enable_GPIO_Port, lora_rx_enable_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(lora_tx_enable_GPIO_Port, lora_tx_enable_Pin, GPIO_PIN_RESET);
+
+  }
+
   write_register(lora, REG_OP_MODE, OPMODE_LONG_RANGE_MODE | mode);
 }
 
@@ -461,9 +472,7 @@ static uint8_t lora_send_packet_base(lora_sx1276 *lora, uint8_t *data, uint8_t d
   if (lora_is_transmitting(lora)) {
     return LORA_BUSY;
   }
-  //set send
-  HAL_GPIO_WritePin(lora_rx_enable_GPIO_Port, lora_rx_enable_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(lora_tx_enable_GPIO_Port, lora_tx_enable_Pin, GPIO_PIN_SET);
+
 
   // Wakeup radio because of FIFO is only available in STANDBY mode
   set_mode(lora, OPMODE_STDBY);
@@ -486,6 +495,7 @@ static uint8_t lora_send_packet_base(lora_sx1276 *lora, uint8_t *data, uint8_t d
   set_mode(lora, OPMODE_TX);
   return LORA_OK;
 }
+
 
 uint8_t lora_send_packet(lora_sx1276 *lora, uint8_t *data, uint8_t data_len)
 {
@@ -583,9 +593,7 @@ static uint8_t lora_receive_packet_base(lora_sx1276 *lora, uint8_t *buffer, uint
   uint8_t res = LORA_EMPTY;
   uint8_t len = 0;
 
-  //set receive
-  HAL_GPIO_WritePin(lora_rx_enable_GPIO_Port, lora_rx_enable_Pin, GPIO_PIN_SET);
-  HAL_GPIO_WritePin(lora_tx_enable_GPIO_Port, lora_tx_enable_Pin, GPIO_PIN_RESET);
+
 
   // Read/Reset IRQs
   uint8_t state = read_register(lora, REG_IRQ_FLAGS);
@@ -703,10 +711,6 @@ uint8_t lora_init(lora_sx1276 *lora, SPI_HandleTypeDef *spi, GPIO_TypeDef *nss_p
   lora->tx_base_addr = LORA_DEFAULT_TX_ADDR;
   lora->rx_base_addr = LORA_DEFAULT_RX_ADDR;
   lora->spi_timeout = LORA_DEFAULT_SPI_TIMEOUT;
-  
-  // reset Tx/Rx mode to rx
-  HAL_GPIO_WritePin(lora_rx_enable_GPIO_Port, lora_rx_enable_Pin, GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(lora_tx_enable_GPIO_Port, lora_tx_enable_Pin, GPIO_PIN_SET);
 
   // Check version
   uint8_t ver = lora_version(lora);
