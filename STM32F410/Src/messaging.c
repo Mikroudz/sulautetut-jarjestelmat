@@ -1,4 +1,4 @@
-#include "lora_app.h"
+#include "messaging.h"
 
 /*
 uint8_t lora_start(lora_sx1276 *lora, SPI_HandleTypeDef *spi){
@@ -118,7 +118,6 @@ void lora_parse_pid(uint8_t *buf){
   gcvt(uint8_to_float(buf), 3, c_buf);
 
   printf("float val get: %s\n", c_buf);
-
 }
 
 void lora_parse_message(uint8_t *buf){

@@ -128,6 +128,30 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
 /* USER CODE BEGIN 1 */
 
+void adc_start(ADC_HandleTypeDef *adc){
+    HAL_ADC_Start_IT(adc);
+}
+
+uint16_t adc_voltage_update(ADC_Voltage_TypeDef *batt, uint16_t adc_raw){
+  if(adc_raw > 0){
+    batt->val_buffer[batt->buffer_index] = adc_raw;
+    if(batt->buffer_index < 4)
+      batt->buffer_index++;
+    else
+      batt->buffer_index = 0;
+    uint8_t meas_count = 0;
+    uint32_t batt_total = 0;
+    for(int i = 0; i < 4; i++){
+      if(batt->val_buffer[i] > 0){
+        meas_count++;
+        batt_total += batt->val_buffer[i];
+      }
+    }
+    return (uint16_t)(batt_total / meas_count);
+    //voltage_meas = (float)(batt_total / meas_count) * (3.27 / 4095.0) * 5.0;
+  }
+  return 0;
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

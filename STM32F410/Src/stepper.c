@@ -1,6 +1,6 @@
 #include "stepper.h"
 
-void init_stepper(Stepper_HandleTypeDef *step, TIM_HandleTypeDef *timer,
+uint8_t init_stepper(Stepper_HandleTypeDef *step, TIM_HandleTypeDef *timer,
     SPI_HandleTypeDef *spi,
     GPIO_TypeDef *step_port, uint16_t step_pin,
     GPIO_TypeDef *dir_port, uint16_t dir_pin,
@@ -9,7 +9,10 @@ void init_stepper(Stepper_HandleTypeDef *step, TIM_HandleTypeDef *timer,
     
     assert_param(step && timer && spi);
 
-    tmc2130_init(&step->Init.Driver, spi, enable_port, nss_port, enable_pin, nss_pin);
+    uint8_t ret = tmc2130_init(&step->Init.Driver, spi, enable_port, nss_port, enable_pin, nss_pin);
+
+    if (ret != TMC2130_OK)
+        return STEPPER_ERROR;
 
     step->Init.Step_Port = step_port;
     step->Init.Step_Pin = step_pin;
@@ -22,6 +25,7 @@ void init_stepper(Stepper_HandleTypeDef *step, TIM_HandleTypeDef *timer,
     step->step_delay = 0xffff;
     step->step_count = 0;
     HAL_GPIO_WritePin(dir_port, dir_pin, GPIO_PIN_RESET);
+    return STEPPER_OK;
 }
 
 void disable_stepper(Stepper_HandleTypeDef *step){
@@ -32,9 +36,7 @@ void enable_stepper(Stepper_HandleTypeDef *step){
     tmc2130_enable(&step->Init.Driver);
 }
 
-
 void stepper_setspeed(Stepper_HandleTypeDef *step, int16_t speed){
-    //HAL_TIM_Base_Stop_IT(step->Init.StepTimer);
     uint16_t speed_target;
     // direction
     if(speed < 0){
@@ -56,6 +58,7 @@ void stepper_setspeed(Stepper_HandleTypeDef *step, int16_t speed){
     }
 }  
 
+// call from timer interrupt handler
 void update_stepper(Stepper_HandleTypeDef *step){
     // update timer if we have new value
     step->Init.StepTimer->Instance->ARR = (uint16_t)step->step_delay;

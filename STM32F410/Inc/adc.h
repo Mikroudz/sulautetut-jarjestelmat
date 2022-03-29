@@ -41,6 +41,15 @@ void MX_ADC1_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
+typedef struct {
+  // voltage filtering
+  uint16_t val_buffer[4];
+  uint8_t buffer_index;
+} ADC_Voltage_TypeDef;
+
+void adc_start(ADC_HandleTypeDef *adc);
+uint16_t adc_voltage_update(ADC_Voltage_TypeDef *batt, uint16_t adc_raw);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

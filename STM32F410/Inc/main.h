@@ -64,7 +64,7 @@ typedef struct {
 #define ADC_DATA_PENDING 0
 #define ADC_DATA_READY 1
 
-// Imu tilat
+// Imu states
 #define IMU_DATA_PENDING 1
 #define IMU_DATA_READY 2
 
@@ -79,22 +79,6 @@ typedef struct {
 #define PID_SEND_ANGLE 1
 #define PID_SEND_VELOCITY 2
 
-typedef enum {
-  APP_READY = 0,
-  APP_RUN,
-  APP_STOP,
-  LOW_BATTERY,
-  INIT_FAIL
-} MainState_t;
-
-typedef enum {
-  MOVE_STOP = 0,  
-  MOVE_FORWARD,
-  MOVE_REVERSE,
-  TURN_LEFT,
-  TURN_RIGHT
-} MoveDirection_t;
-
 typedef struct {
   uint16_t voltage;
   uint16_t distance_front;
@@ -103,14 +87,14 @@ typedef struct {
   uint16_t tempereature;
   uint8_t robot_status;
   uint8_t send_pid;
-
 } RobotData_t;
 
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+// low battery treshold in ADC values
+#define BATTERY_LOW_UINT (uint16_t)(((4095. / 3.27) / 5.) * BATTERY_LOW)
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/

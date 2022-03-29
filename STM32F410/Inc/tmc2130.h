@@ -5,6 +5,9 @@
 #include "main.h"
 #include <stdio.h>
 
+#define TMC2130_OK 0
+#define TMC2130_ERROR 1
+
 // Asetustruktuuri stepperille. Luo jokaiselle stepperille oma tälläinen
 typedef struct {
     SPI_HandleTypeDef   *spi;

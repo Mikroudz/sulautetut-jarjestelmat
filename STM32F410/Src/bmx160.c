@@ -97,21 +97,20 @@ uint8_t bmx160_init(bmx160 *imu, I2C_HandleTypeDef *i2c,
         HAL_Delay(10);
     }
 
-
     read_register(imu, REG_OFFSET, 7, buf);
 
-    for(int i = 0; i < 7; i++){
-        printf("%d ", buf[i]);
-    }
+    //for(int i = 0; i < 7; i++){
+    //    printf("%d ", buf[i]);
+    //}
 
     read_register(imu, REG_CHIPID, 1, buf);
-    printf("Read CHIPID: 0x%x\n\r", buf[0]);
+    //printf("Read CHIPID: 0x%x\n\r", buf[0]);
 
     read_register(imu, REG_PMU_STATUS, 1, buf);
-    printf("Read PMU_STATUS: 0x%x\n\r", buf[0]);
+    //printf("Read PMU_STATUS: 0x%x\n\r", buf[0]);
 
     read_register(imu, REG_GYRO_RANGE, 1, buf);
-    printf("Read GYRO_RANGE: 0x%x\n\r", buf[0]);
+    //printf("Read GYRO_RANGE: 0x%x\n\r", buf[0]);
     // Clear stale data
     imu_start_update(imu);
     return HAL_OK;

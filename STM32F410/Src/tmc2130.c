@@ -203,7 +203,8 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
   tmc2130_disable(tmc);
   HAL_Delay(10);
 
-    //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
+  if(read_REG_GSTAT(tmc) == 0)
+    return TMC2130_ERROR;
 
   //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
   write_CHOPCONF(tmc);
@@ -218,12 +219,12 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
   //    printf("Read IHOLD_RUN: 0x%08x\n\r", read_IHOLD_RUN(&stepper1));
   //printf("Read GSTAT: 0x%x\n\r", read_REG_GSTAT(tmc));
   //    printf("Read GSTAT: 0x%08x\n\r", read_REG_GSTAT(&stepper1));
-  printf("Read CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(tmc));
-  printf("Read GCONF: 0x%08x\n\r", read_REG_GCONF(tmc));
-  printf("Read DRVSTATUS: 0x%08x\n\r", read_REG_DRVSTATUS(tmc));
+  //printf("Read CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(tmc));
+  //printf("Read GCONF: 0x%08x\n\r", read_REG_GCONF(tmc));
+  //printf("Read DRVSTATUS: 0x%08x\n\r", read_REG_DRVSTATUS(tmc));
   //printf("Read PWMCONF: 0x%08x\n\r", read_REG_PWMCONF(tmc));
 
-  printf("Read GSTAT: 0x%x\n\r", tmc->gstat_val);
+  //printf("Read GSTAT: 0x%x\n\r", tmc->gstat_val);
 
-  return 0;
+  return TMC2130_OK;
 }

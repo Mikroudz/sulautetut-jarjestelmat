@@ -73,7 +73,6 @@ int pid(PID_TypeDef *input){
     else if (ret < input->min)
         ret = input->min;
 
-
     input->out_sum = out_sum;
 
     input->last = input->new;
@@ -109,7 +108,6 @@ float complementary_filter(data_t *acc, data_t *gyro, float pitch){
         pitch = pitch * 0.995 + pitchacc * 0.005;
         //printf("acc: %d gyro: %d \n", (int)pitchacc, (int)pitch);
     }
-
     return pitch;
 }
 
@@ -130,4 +128,113 @@ void print_pid(PID_TypeDef *input){
     gcvt(input->KI, 3, i);
     gcvt(input->KD, 3, d);
     printf("P: %s I: %s D: %s\n", p, i , d);
+}
+
+static void motion_control_update(Motion_TypeDef *mot){
+    // 90 asteen korjaus. Tää pitäs tehä erilailla koska aiheuttaa gimbal lockkia
+    mot->anglePID.new = mot->robot_angle - 90.;
+    // PID, joka antaa moottorinopeuden
+    int target_speed = (int)pid_steps(&mot->anglePID);
+
+    // lasketaan joka toinen kierros kulman korjaus perustuen robotin oikeaan nopeuteen
+    if (mot->loop_iter % 2 == 0){
+        // Nopeus arvioidaan kalmanfiltterillä koska stepit eivät ole robotin oikea fyysinen nopeus
+        mot->velocityPID.new = kalmanfilter((float)(mot->step1->step_count - mot->step_count));
+        mot->step_count = mot->step1->step_count;
+        if(mot->direction == MOVE_FORWARD){
+            // unohda integraali kun liikutaan; muistetaan taas kun ollaan paikallaan
+            mot->velocityPID.out_sum = 0.;
+            if(mot->velocityPID.target < 15)
+                mot->velocityPID.target += 0.5;
+        }else if(mot->direction == MOVE_REVERSE){
+            mot->velocityPID.out_sum = 0.;
+            if(mot->velocityPID.target > -15)
+                mot->velocityPID.target -= .5;
+        }else if(mot->direction == MOVE_STOP){
+            mot->velocityPID.target = 0.;
+        }
+        // asetetaan kohdekulma välillä +10 -10
+        mot->anglePID.target = -pid_steps(&mot->velocityPID);
+    }
+
+    switch(mot->direction){
+        case TURN_LEFT:
+            mot->left_motor_offset = 200;
+            mot->right_motor_offset = -100;
+        break;
+        case TURN_RIGHT:
+            mot->left_motor_offset = -200;
+            mot->right_motor_offset = 100;
+        break;
+        default:// forward or backwards
+            mot->left_motor_offset = 0;
+            mot->right_motor_offset = 0;
+    }
+
+    //printf("target angle: %d current speed: %d speed target: %d angle: %d steps: %d \n", 
+    //(int)anglePID.target, (int) velocityPID.new, target_speed, (int)real_pitch, step1.step_count );
+
+    // set stepper speed
+    stepper_setspeed(mot->step1, -(target_speed + mot->left_motor_offset));
+    stepper_setspeed(mot->step2, target_speed + mot->right_motor_offset);
+}
+
+// the balance main loop/update loop
+void motion_loop(Motion_TypeDef *mot){
+    // This changes balance state
+    if(abs((int)(mot->robot_angle - 90.)) < 30 && mot->app_state == APP_RUN && mot->state == BL_STOP){
+        // Detect that robot is lifted upright and reset all parameters to prepare for balancing
+        mot->state = BL_START; 
+        stepper_setspeed(mot->step1, 0);
+        stepper_setspeed(mot->step2, 0);
+        enable_stepper(mot->step1);
+        enable_stepper(mot->step2);
+        pid_reset(&mot->anglePID);
+        pid_reset(&mot->velocityPID);
+        
+        mot->step1->step_count = 0;
+        mot->step_count = 0;
+        mot->setup = 0;
+    }else if(mot->state == BL_RUN){
+        // stop
+        mot->state = BL_STOP;
+    }
+
+    // this acts on the state
+    if(mot->state == BL_RUN){ // actual balance
+        motion_control_update(mot);
+        mot->loop_iter++;
+    }else if(mot->state == BL_STOP){ // Stop
+        disable_stepper(mot->step1);
+        disable_stepper(mot->step2);
+        mot->state = BL_IDLE;
+    }else if(mot->state == BL_START){ // calibration time
+        // Wait till robot is hold upright for some time
+        if(mot->setup < 30){
+            float angle = mot->robot_angle - 90.;
+            // wait for upright position (robot should be held +-3 degrees from balance point)
+            if(fabs(angle) < 3.){
+                mot->setup++;
+                // init values used in calculations
+                mot->anglePID.last = angle;
+            }
+        }else{
+            // All done calibrating
+            mot->state = BL_RUN;
+        }
+    }
+}
+
+void motion_init(Motion_TypeDef *mot){
+    //**** PID CONTROLLER INIT ****//
+    mot->velocityPID = (PID_TypeDef){.KP = 0.45, .KI = 0.25, .KD = 0.005, 
+                                .min = -13., .max = 13., .target = 0.};
+
+    mot->anglePID = (PID_TypeDef){.KP = 150., .KI = .05 , .KD = 1.2,
+                            .min = -1500, .max = 1500, 
+                            .target = 1.5};
+
+    mot->app_state = APP_READY;
+    mot->direction = MOVE_STOP;
+    mot->state = BL_IDLE;
 }

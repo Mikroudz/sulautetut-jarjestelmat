@@ -14,6 +14,10 @@
 #define CLK_US      0.01041
 #define MOTOR_COUNT (20 / (CLK_US * MOTOR_RES))
 
+// return codes
+#define STEPPER_OK 0
+#define STEPPER_ERROR 1
+
 typedef enum {
     STOP = 0,
     RUN,
@@ -57,7 +61,7 @@ typedef struct {
 } Stepper_HandleTypeDef;
 
 // Init stepper parameters etc
-void init_stepper(Stepper_HandleTypeDef *step, TIM_HandleTypeDef *timer,
+uint8_t init_stepper(Stepper_HandleTypeDef *step, TIM_HandleTypeDef *timer,
     SPI_HandleTypeDef *spi,
     GPIO_TypeDef *step_port, uint16_t step_pin,
     GPIO_TypeDef *dir_port, uint16_t dir_pin,
