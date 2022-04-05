@@ -33,7 +33,6 @@ float pid_simple(PID_TypeDef *pid){
     float i = pid->KI * pid->out_sum;
     float d = pid->KD * (error - pid->last);
 
-
     float ret = p + i + d;
 
     if (ret > pid->max)
@@ -111,7 +110,6 @@ float complementary_filter(data_t *acc, data_t *gyro, float pitch){
     return pitch;
 }
 
-
 void pid_reset(PID_TypeDef *input){
     input->last = 0.;
     input->new = 0.;
@@ -135,7 +133,6 @@ static void motion_control_update(Motion_TypeDef *mot){
     mot->anglePID.new = mot->robot_angle - 90.;
     // PID, joka antaa moottorinopeuden
     int target_speed = (int)pid_steps(&mot->anglePID);
-
     // lasketaan joka toinen kierros kulman korjaus perustuen robotin oikeaan nopeuteen
     if (mot->loop_iter % 2 == 0){
         // Nopeus arvioidaan kalmanfiltterillä koska stepit eivät ole robotin oikea fyysinen nopeus
@@ -183,7 +180,8 @@ static void motion_control_update(Motion_TypeDef *mot){
 void motion_loop(Motion_TypeDef *mot){
     // This changes balance state
     if(abs((int)(mot->robot_angle - 90.)) < 30 && mot->app_state == APP_RUN && mot->state == BL_STOP){
-        // Detect that robot is lifted upright and reset all parameters to prepare for balancing
+        // Detect that robot is lifted upright and 
+        // reset all parameters to prepare for balancing
         mot->state = BL_START; 
         stepper_setspeed(mot->step1, 0);
         stepper_setspeed(mot->step2, 0);
@@ -200,7 +198,7 @@ void motion_loop(Motion_TypeDef *mot){
         mot->state = BL_STOP;
     }
 
-    // this acts on the state
+    // this acts on the balance state
     if(mot->state == BL_RUN){ // actual balance
         motion_control_update(mot);
         mot->loop_iter++;

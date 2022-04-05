@@ -201,6 +201,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+    //**** Accerometer and gyroscope data filtering ****//
     if(HAL_GetTick() - last_run_comp > CALC_COMP){
       // run complementary filter on raw IMU values and update angle value
       motion_data.robot_angle = complementary_filter(&imu.acc, &imu.gyro, motion_data.robot_angle);
@@ -209,13 +211,13 @@ int main(void)
       last_run_comp = HAL_GetTick();
     }
 
-    // main balance loop
+    //**** Robot balancing loop ****//
     if(HAL_GetTick() - last_run_balance > CALC_BALANCE){
       last_run_balance = HAL_GetTick();
       motion_loop(&motion_data);
     }
 
-    // Read voltage to adc_raw every READ_VOLTAGE
+    //**** ADC battery voltage update ****//
     if(HAL_GetTick() - last_read_voltage > READ_VOLTAGE){
       // convert voltage
       robot_data.voltage = adc_voltage_update(&battery_data, HAL_ADC_GetValue(&hadc1));
@@ -228,7 +230,7 @@ int main(void)
       last_read_voltage = HAL_GetTick();
     }
 
-    // Check if imu data is ready to be read
+    //**** IMU data read ****//
     if(imu_data_status == IMU_DATA_READY){
       // update values in imu structure. Read them like imu.acc.x etc...
       imu_end_update(&imu);
@@ -237,7 +239,7 @@ int main(void)
       imu_data_status = IMU_DATA_PENDING;
     }
     
-    // TODO: move this to a function
+    //**** LoRa read and decode received data ****//
     if(lora_rx_status == LORA_RX_DATA_READY){
       // LoRa receive check
       uint8_t res;
@@ -265,7 +267,7 @@ int main(void)
       lora_rx_status = LORA_RX_DATA_PENDING;
     }
 
-    // Led blinking
+    //**** Blinking leds ****//
     if(HAL_GetTick() - last_blink > BLINK_LED){
 
       HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
@@ -277,7 +279,7 @@ int main(void)
         last_blink = HAL_GetTick() - 900;
     }
 
-    // Check if we have messages to send
+    //**** Send LoRa messages to controller ****//d
     if(HAL_GetTick() - last_lora_tx > SEND_LORA_TX){
 
       uint8_t tx_len = 0;
@@ -303,10 +305,8 @@ int main(void)
           // Send failed
         }
         printf("lora send\n");
-        
         lora_mode_receive_continuous(&lora);
       }
-
       last_lora_meas++;
       last_lora_tx = HAL_GetTick();
     }
