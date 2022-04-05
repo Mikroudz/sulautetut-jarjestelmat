@@ -14,6 +14,7 @@ from SX127x.LoRa import *
 from SX127x.LoRaArgumentParser import LoRaArgumentParser
 from SX127x.board_config import BOARD
 import RPi.GPIO as GPIO
+import json
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode="threading")
@@ -62,9 +63,12 @@ class RobotLora(LoRa):
         self.set_mode(MODE.SLEEP)
         self.reset_ptr_rx()
         print(payload)
-        info = payload #struct.unpack('<f', payload)
+        #info = payload #struct.unpack('<f', payload)
         #print(info)
-        socketio.emit('update_info',{'data': info})
+        message = self.decode_message(payload)
+        print(message)
+        if len(message) > 2:
+            self.emit_parameters(message)
         self.rx_mode()
     
     def on_tx_done(self):
@@ -78,7 +82,44 @@ class RobotLora(LoRa):
                 self.on_rx_done()
             time.sleep(0.1)
 
+    def emit_parameters(self, info):
+        socketio.emit('update_info',{'data': info})
+    
+    def decode_message(self, msg):
+        msg_type = chr(msg[0])
+        print(msg_type)
+        message = {} 
+        if msg_type == "A":
+            pid = chr(msg[1])
+            print(pid)
+            if pid == "V":
+                message["vel"] = {}  
+                message["vel"]["p"] = struct.unpack('<f', bytes(msg[2:6]))
+                message["vel"]["i"] = struct.unpack('<f', bytes(msg[6:10]))
+                message["vel"]["d"] = struct.unpack('<f', bytes(msg[10:14]))
+                print(message)
+            elif pid == "A":
+                message["ang"] = {}  
+                message["ang"]["p"] = struct.unpack('<f', bytes(msg[2:6]))
+                message["ang"]["i"] = struct.unpack('<f', bytes(msg[6:10]))
+                message["ang"]["d"] = struct.unpack('<f', bytes(msg[10:14]))
+                print(message)
+        elif msg_type == "C":
+            temperature = struct.unpack('<H', bytes(msg[1:3]))
+            temperature = float(temperature[0]) * (3.27 / 4095.0) * 5.0
+            message["temp"] = temperature
+            message["distF"] =  struct.unpack('<H', bytes(msg[3:5]))[0] 
+            message["distR"] =  struct.unpack('<H', bytes(msg[5:7]))[0] 
+            message["ill"] =  struct.unpack('<H', bytes(msg[7:9]))[0] 
+            battery_charge = struct.unpack('<H', bytes(msg[9:11]))[0]
+            battery_charge = float(battery_charge) * (3.27 / 4095.0) * 5.0
+            message["batt"] = battery_charge
+            #message["status"] =  struct.unpack('<B', bytes(msg[11]))
+            print(message)
+        return json.dumps(message)
 
+
+            
 lora = RobotLora()
 args = parser.parse_args(lora)
 
