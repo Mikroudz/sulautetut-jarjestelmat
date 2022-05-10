@@ -27,6 +27,11 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+#include "VL53L1X_api.h"
+#include "VL53L1X_calibration.h"
+#include "vl53l1_platform.h"
+#include "vl53l1_types.h"
+#include "vl53l1_error_codes.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -45,7 +50,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define VL53_int_GPIO_Port GPIO_PIN_9
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -71,6 +76,13 @@ uint16_t adc_raw = 0;
 int steps = 0;
 /* USER CODE END PV */
 
+//VL53L1
+uint16_t dev = 0x52;
+int VL53L1X_status = 0;
+volatile int IntCount;
+#define isInterrupt 0
+I2C_HandleTypeDef hi2c2;
+
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
@@ -88,6 +100,18 @@ void adc_start(void){
     //float voltage_meas = (float)adc_raw * (3.27 / 4095.0) * 5.0;
 }
 
+//int _write(int fd, char * ptr, int len){
+//  HAL_UART_Transmit(&huart6, (uint8_t *)ptr, len, 0xffff);
+//  return len;
+//}
+
+void HAL_GPIO_EXTI_Callback_TOF(uint16_t GPIO_Pin)
+{
+		if (GPIO_Pin==VL53_int_GPIO_Port)
+		{
+			IntCount++;
+		}
+}
 
 /* USER CODE END 0 */
 
@@ -222,6 +246,48 @@ int main(void)
 
   app_state = APP_RUN;
 
+  /// VL53L1X code starts here
+  uint8_t byteData, sensorState=0;
+  uint16_t wordData;
+  uint8_t ToFSensor = 1; // 0=Left, 1=Center(default), 2=Right
+  uint16_t Distance;
+  uint16_t SignalRate;
+  uint16_t AmbientRate;
+  uint16_t SpadNum; 
+  uint8_t RangeStatus;
+  uint8_t dataReady;
+
+  ToFSensor = 1; // Select ToFSensor: 0=Left, 1=Center, 2=Right
+  //status = VLO53L1_ResetId(ToFSensor, 0); // Reset ToF sensor
+  HAL_Delay(2);
+  char text[] = "Huart ulostulo toimii.\n";
+  HAL_UART_Transmit(&huart6, (uint8_t*)&text, 23, 0xFFFF);
+
+  /* Those basic I2C read functions can be used to check your own I2C functions */
+  VL53L1X_status = VL53L1_RdByte(dev, 0x010F, &byteData);
+  printf("status: %d\n",VL53L1X_status);
+  printf("VL53L1X Model_ID: %X\n", byteData);
+  VL53L1X_status = VL53L1_RdByte(dev, 0x0110, &byteData);
+  printf("VL53L1X Module_Type: %X\n", byteData);
+  VL53L1X_status = VL53L1_RdWord(dev, 0x010F, &wordData);
+  printf("VL53L1X: %X\n", wordData);
+  while(sensorState==0){
+    //printf("Booting VL53L1X...\n");
+    VL53L1X_status = VL53L1X_BootState(dev, &sensorState);
+    //printf("Sensorstate: %d\n", sensorState);
+    HAL_Delay(10);
+  }
+  printf("Chip booted\n");
+
+  /* This function must to be called to initialize the sensor with the default setting  */
+  VL53L1X_status = VL53L1X_SensorInit(dev);
+
+  /* Optional functions to be used to change the main ranging parameters according the application requirements to get the best ranging performances */
+  VL53L1X_status = VL53L1X_SetDistanceMode(dev, 2); /* 1=short, 2=long */
+  VL53L1X_status = VL53L1X_SetTimingBudgetInMs(dev, 100); /* in ms possible values [20, 50, 100, 200, 500] */
+  VL53L1X_status = VL53L1X_SetInterMeasurementInMs(dev, 200); /* in ms, IM must be > = TB */
+  printf("VL53L1X Ultra Lite Driver Example running ...\n");
+  VL53L1X_status = VL53L1X_StartRanging(dev);   /* This function has to be called to enable the ranging */
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -231,7 +297,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
     if(HAL_GetTick() - last_run_comp > CALC_COMP){
-      // run complementary filter on raw IMU values.
+      // run comple50 filter on raw IMU values.
       real_pitch = complementary_filter(&imu.acc, &imu.gyro, real_pitch);
       // trigger new imu data fetch
       imu_start_update(&imu);
@@ -517,7 +583,25 @@ int main(void)
     //  printf("Send fail: %d\n", res);
       // Send failed
     //}
+
+
+    while(dataReady == 0) {
+      VL53L1X_status = VL53L1X_CheckForDataReady(dev, &dataReady);
+      //printf("VL53L1X dataready loopissa.\n");
+      HAL_Delay(2);
+    }
+    dataReady = 0;
+	  VL53L1X_status = VL53L1X_GetRangeStatus(dev, &RangeStatus);
+	  VL53L1X_status = VL53L1X_GetDistance(dev, &Distance);
+	  VL53L1X_status = VL53L1X_GetSignalRate(dev, &SignalRate);
+	  VL53L1X_status = VL53L1X_GetAmbientRate(dev, &AmbientRate);
+	  VL53L1X_status = VL53L1X_GetSpadNb(dev, &SpadNum);
+	  VL53L1X_status = VL53L1X_ClearInterrupt(dev); /* clear interrupt has to be called to enable next interrupt*/
+	  printf("%u, %u, %u, %u, %u\n", RangeStatus, Distance, SignalRate, AmbientRate,SpadNum);
+	  //VL53L1X_status = VL53L1X_StopRanging(dev); /* clear interrupt has to be called to enable next interrupt*/
+    HAL_Delay(2);
   }
+    /* USER CODE BEGIN 3 */
   /* USER CODE END 3 */
 }
 
