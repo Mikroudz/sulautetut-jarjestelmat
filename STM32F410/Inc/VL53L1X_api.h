@@ -249,6 +249,11 @@ VL53L1X_ERROR VL53L1X_GetSensorId(uint16_t dev, uint16_t *id);
 VL53L1X_ERROR VL53L1X_GetDistance(uint16_t dev, uint16_t *distance);
 
 /**
+ * @brief This function returns the distance measured by the sensor in mm. Uses DMA.
+ */
+VL53L1X_ERROR VL53L1X_GetDistance_DMA(uint16_t dev, uint16_t *distance);
+
+/**
  * @brief This function returns the returned signal per SPAD in kcps/SPAD.
  * With kcps stands for Kilo Count Per Second
  */

@@ -59,6 +59,7 @@ typedef struct {
 #define CALC_COMP 10
 #define SEND_LORA_MEAS 1000
 #define SEND_LORA_TX 100
+#define CALC_DISTANCE 200
 
 // ADC status
 #define ADC_DATA_PENDING 0

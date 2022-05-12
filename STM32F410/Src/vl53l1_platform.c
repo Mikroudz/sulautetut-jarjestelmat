@@ -73,11 +73,35 @@ int _I2CWrite(uint16_t Dev, uint8_t *pdata, uint32_t count) {
     return status;
 }
 
+// Alustava DMA-funktio, ei vielä käytössä
+int _I2CWrite_DMA(uint16_t Dev, uint8_t *pdata, uint32_t count) {
+    int status;
+
+    status = HAL_I2C_Master_Transmit_DMA(&hi2c2, Dev, pdata, count);
+    if (status) {
+        //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
+        //XNUCLEO6180XA1_I2C1_Init(&hi2c2);
+    }
+    return status;
+}
+
 int _I2CRead(uint16_t Dev, uint8_t *pdata, uint32_t count) {
     int status;
     int i2c_time_out = I2C_TIME_OUT_BASE+ count* I2C_TIME_OUT_BYTE;
 
     status = HAL_I2C_Master_Receive(&hi2c2, Dev | 1, pdata, count, i2c_time_out);
+    if (status) {
+        //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
+        //XNUCLEO6180XA1_I2C1_Init(&hi2c2);
+    }
+    return status;
+}
+
+// Alustava DMA-funktio, ei vielä käytössä
+int _I2CRead_DMA(uint16_t Dev, uint8_t *pdata, uint32_t count){
+    int status;
+
+    status = HAL_I2C_Master_Receive_DMA(&hi2c2, Dev | 1, pdata, count);
     if (status) {
         //VL6180x_ErrLog("I2C error 0x%x %d len", dev->I2cAddr, len);
         //XNUCLEO6180XA1_I2C1_Init(&hi2c2);
@@ -226,6 +250,31 @@ VL53L1_Error VL53L1_RdWord(uint16_t Dev, uint16_t index, uint16_t *data) {
         goto done;
     }
     status_int = _I2CRead(Dev, _I2CBuffer, 2);
+    if (status_int != 0) {
+        Status = VL53L1_ERROR_CONTROL_INTERFACE;
+        goto done;
+    }
+
+    *data = ((uint16_t)_I2CBuffer[0]<<8) + (uint16_t)_I2CBuffer[1];
+done:
+    VL53L1_PutI2cBus();
+    return Status;
+}
+
+VL53L1_Error VL53L1_RdWord_DMA(uint16_t Dev, uint16_t index, uint16_t *data) {
+    VL53L1_Error Status = VL53L1_ERROR_NONE;
+    int32_t status_int;
+
+    _I2CBuffer[0] = index>>8;
+	_I2CBuffer[1] = index&0xFF;
+    VL53L1_GetI2cBus();
+    status_int = _I2CWrite_DMA(Dev, _I2CBuffer, 2);
+
+    if( status_int ){
+        Status = VL53L1_ERROR_CONTROL_INTERFACE;
+        goto done;
+    }
+    status_int = _I2CRead_DMA(Dev, _I2CBuffer, 2);
     if (status_int != 0) {
         Status = VL53L1_ERROR_CONTROL_INTERFACE;
         goto done;

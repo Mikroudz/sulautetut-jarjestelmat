@@ -80,6 +80,7 @@ int steps = 0;
 uint16_t dev = 0x52;
 int VL53L1X_status = 0;
 volatile int IntCount;
+volatile int loopCount = 0;
 #define isInterrupt 0
 I2C_HandleTypeDef hi2c2;
 
@@ -167,6 +168,8 @@ int main(void)
   uint32_t last_run_comp = 0;
   uint32_t last_lora_tx = 0;
   uint32_t last_lora_meas = 0;
+  uint32_t last_dist_meas = 0;
+
 
   MainState_t app_state = STOP;
 
@@ -584,23 +587,30 @@ int main(void)
       // Send failed
     //}
 
+    //////////////// 
+    //VL53L1X code//
+    ////////////////
 
-    while(dataReady == 0) {
-      VL53L1X_status = VL53L1X_CheckForDataReady(dev, &dataReady);
-      //printf("VL53L1X dataready loopissa.\n");
-      HAL_Delay(2);
+    if (HAL_GetTick() - last_dist_meas > CALC_DISTANCE){
+      while(dataReady == 0){
+        VL53L1X_status = VL53L1X_CheckForDataReady(dev, &dataReady);
+      }
+      last_dist_meas = HAL_GetTick();
+      if(dataReady != 0){
+        dataReady = 0;
+        VL53L1X_status = VL53L1X_GetRangeStatus(dev, &RangeStatus);
+        VL53L1X_status = VL53L1X_GetDistance(dev, &Distance);
+        VL53L1X_status = VL53L1X_GetSignalRate(dev, &SignalRate);
+        VL53L1X_status = VL53L1X_GetAmbientRate(dev, &AmbientRate);
+        VL53L1X_status = VL53L1X_GetSpadNb(dev, &SpadNum);
+        VL53L1X_status = VL53L1X_ClearInterrupt(dev); /* clear interrupt has to be called to enable next interrupt*/
+        printf("%u, %u, %u, %u, %u\n", RangeStatus, Distance, SignalRate, AmbientRate,SpadNum);
+        robot_data.distance_front = Distance;
+      }
     }
-    dataReady = 0;
-	  VL53L1X_status = VL53L1X_GetRangeStatus(dev, &RangeStatus);
-	  VL53L1X_status = VL53L1X_GetDistance(dev, &Distance);
-	  VL53L1X_status = VL53L1X_GetSignalRate(dev, &SignalRate);
-	  VL53L1X_status = VL53L1X_GetAmbientRate(dev, &AmbientRate);
-	  VL53L1X_status = VL53L1X_GetSpadNb(dev, &SpadNum);
-	  VL53L1X_status = VL53L1X_ClearInterrupt(dev); /* clear interrupt has to be called to enable next interrupt*/
-	  printf("%u, %u, %u, %u, %u\n", RangeStatus, Distance, SignalRate, AmbientRate,SpadNum);
-	  //VL53L1X_status = VL53L1X_StopRanging(dev); /* clear interrupt has to be called to enable next interrupt*/
-    HAL_Delay(2);
+    
   }
+
     /* USER CODE BEGIN 3 */
   /* USER CODE END 3 */
 }

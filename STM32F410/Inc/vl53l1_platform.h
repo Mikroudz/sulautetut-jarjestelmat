@@ -70,6 +70,15 @@ int8_t VL53L1_RdWord(
 		uint16_t dev,
 		uint16_t      index,
 		uint16_t     *pdata);
+
+/** @brief VL53L1_RdWord_DMA() definition.\n
+ * To be implemented by the developer
+ */
+int8_t VL53L1_RdWord_DMA(
+		uint16_t dev,
+		uint16_t      index,
+		uint16_t     *pdata);
+
 /** @brief VL53L1_RdDWord() definition.\n
  * To be implemented by the developer
  */

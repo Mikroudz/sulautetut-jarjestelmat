@@ -554,6 +554,18 @@ VL53L1X_ERROR VL53L1X_GetDistance(uint16_t dev, uint16_t *distance)
 	return status;
 }
 
+// Alustava DMA funktio, ei tomi vielä
+VL53L1X_ERROR VL53L1X_GetDistance_DMA(uint16_t dev, uint16_t *distance)
+{
+	VL53L1X_ERROR status = 0;
+	uint16_t tmp;
+
+	status |= (VL53L1_RdWord_DMA(dev,
+			VL53L1_RESULT__FINAL_CROSSTALK_CORRECTED_RANGE_MM_SD0, &tmp));
+	*distance = tmp;
+	return status;
+}
+
 VL53L1X_ERROR VL53L1X_GetSignalPerSpad(uint16_t dev, uint16_t *signalRate)
 {
 	VL53L1X_ERROR status = 0;
