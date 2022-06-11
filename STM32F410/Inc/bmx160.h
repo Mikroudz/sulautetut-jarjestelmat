@@ -15,7 +15,10 @@
 #define REG_GYRO_CONF 0x42
 #define REG_GYRO_RANGE 0x43
 #define REG_FOC_CONF 0x69
+#define REG_NV_CONF 0x70
 #define REG_OFFSET 0x71
+
+#define BMX160_I2C_WATCHDOG_ENABLE 0x4
 
 /** Soft reset command */
 #define BMX160_SOFT_RESET_CMD                    0xb6

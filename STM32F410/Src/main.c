@@ -567,11 +567,14 @@ int main(void)
 
       // actually send data if we have any
       if (tx_len > 0){
-        uint8_t res = lora_send_packet(&lora, lora_tx_msg, 12);
+        uint8_t res = lora_send_packet_blocking(&lora, lora_tx_msg, tx_len, 1000);
         if (res != LORA_OK) {
           printf("Send fail: %d\n", res);
         // Send failed
         }
+        printf("lora send\n");
+        
+        lora_mode_receive_continuous(&lora);
       }
 
       last_lora_meas++;
