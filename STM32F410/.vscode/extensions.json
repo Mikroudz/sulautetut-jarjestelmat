@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
     // See http://go.microsoft.com/fwlink/?LinkId=827846
     // for the documentation about the extensions.json format
@@ -5,3 +6,15 @@
         "platformio.platformio-ide"
     ]
 }
+=======
+{
+    // See http://go.microsoft.com/fwlink/?LinkId=827846
+    // for the documentation about the extensions.json format
+    "recommendations": [
+        "platformio.platformio-ide"
+    ],
+    "unwantedRecommendations": [
+        "ms-vscode.cpptools-extension-pack"
+    ]
+}
+>>>>>>> 980f1f29dcaaab1453104de6839ef4c5ed04c272

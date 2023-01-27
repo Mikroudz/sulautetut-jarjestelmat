@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2022 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
@@ -38,7 +38,7 @@ void MX_FMPI2C1_Init(void)
 
   /* USER CODE END FMPI2C1_Init 1 */
   hfmpi2c1.Instance = FMPI2C1;
-  hfmpi2c1.Init.Timing = 0x2000090E;
+  hfmpi2c1.Init.Timing = 0x20303E5D;
   hfmpi2c1.Init.OwnAddress1 = 0;
   hfmpi2c1.Init.AddressingMode = FMPI2C_ADDRESSINGMODE_7BIT;
   hfmpi2c1.Init.DualAddressMode = FMPI2C_DUALADDRESS_DISABLE;
