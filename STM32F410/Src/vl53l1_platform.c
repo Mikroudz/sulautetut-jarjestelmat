@@ -56,7 +56,6 @@
  */
 #   define VL53L1_PutI2cBus(...) (void)0
 #endif
-I2C_HandleTypeDef hi2c2;
 
 
 uint8_t _I2CBuffer[256];
