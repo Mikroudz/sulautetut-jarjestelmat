@@ -31,6 +31,17 @@
             "toolchainBinDir": "/home/juham/.platformio/packages/toolchain-gccarmnoneeabi/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "svdPath": "/home/juham/.platformio/platforms/ststm32/misc/svd/STM32F410xx.svd"
+        },
+        {
+            "type": "platformio-debug",
+            "request": "launch",
+            "name": "PIO Debug (without uploading)",
+            "executable": "/home/juham/Opiskelu_TITE_Master_2020/Sularit/sulautetut-jarjestelmat/STM32F410/.pio/build/genericSTM32F410RB/firmware.elf",
+            "projectEnvName": "genericSTM32F410RB",
+            "toolchainBinDir": "/home/juham/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "internalConsoleOptions": "openOnSessionStart",
+            "svdPath": "/home/juham/.platformio/platforms/ststm32/misc/svd/STM32F410xx.svd",
+            "loadMode": "manual"
         }
     ]
 }

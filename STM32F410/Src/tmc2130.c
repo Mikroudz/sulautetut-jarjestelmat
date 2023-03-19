@@ -124,10 +124,10 @@ static uint32_t read_REG_PWMCONF(tmc2130 *tmc){
 static void write_CHOPCONF(tmc2130 *tmc){
 
   uint32_t val = 0x000100C3;//0x00008008; = 0x0001 << 24;// MRES microstep resolution 0 //0x000100C3;
-  val |= 6 << 24; // fullstep
+  val |= 6 << 24; // 4 microsteps per step
   val |= 1 << 28; // interpolation
   val |= 1 << 17; // Vsense = 1
-  val |= 2 << 15; //TBL 1 = 24
+  val |= 2 << 15; //TBL 2 = 36
   val |= 2 << 4; // HSTRT
   val |= 3 << 7; // HEND
   val |= 3; //Toff
@@ -203,9 +203,10 @@ uint8_t tmc2130_init(tmc2130 *tmc, SPI_HandleTypeDef *spi,
   tmc2130_disable(tmc);
   HAL_Delay(10);
 
-    //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
+  //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
 
   //printf("REG_CHOPCONF: 0x%08x\n\r", read_REG_CHOPCONF(&stepper1));
+
   write_CHOPCONF(tmc);
   HAL_Delay(10);
   write_PWMCONF(tmc);

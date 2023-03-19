@@ -1,4 +1,5 @@
 (sym_lib_table
-  (lib (name robotti_library)(type Legacy)(uri ${KIPRJMOD}/robotti_library.lib)(options "")(descr ""))
-  (lib (name juhis)(type Legacy)(uri "U:/Koulu/Sulautettujen jarjestelmien projekti/sulautetut-jarjestelmat-juhis/piirilevy/robotti/robotti-rescue.lib")(options "")(descr "")(disabled))
+  (lib (name "robotti_library")(type "Legacy")(uri "${KIPRJMOD}/robotti_library.lib")(options "")(descr ""))
+  (lib (name "juhis")(type "Legacy")(uri "U:/Koulu/Sulautettujen jarjestelmien projekti/sulautetut-jarjestelmat-juhis/piirilevy/robotti/robotti-rescue.lib")(options "")(descr "")(disabled))
+  (lib (name "robotti-rescue")(type "Legacy")(uri "${KIPRJMOD}/robotti-rescue.lib")(options "")(descr ""))
 )
