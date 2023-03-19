@@ -598,7 +598,6 @@ int main(void)
       while(dataReady == 0){
         VL53L1X_status = VL53L1X_CheckForDataReady(dev, &dataReady);
       }
-      last_dist_meas = HAL_GetTick();
       if(dataReady != 0){
         dataReady = 0;
         VL53L1X_status = VL53L1X_GetRangeStatus(dev, &RangeStatus);
@@ -610,6 +609,7 @@ int main(void)
         printf("%u, %u, %u, %u, %u\n", RangeStatus, Distance, SignalRate, AmbientRate,SpadNum);
         robot_data.distance_front = Distance;
       }
+      last_dist_meas = HAL_GetTick();
     }
     
   }

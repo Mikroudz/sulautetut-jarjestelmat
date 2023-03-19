@@ -64,9 +64,9 @@ uint8_t lora_create_measurement_message(RobotData_t *data, uint8_t *buf){
   buf[11] = data->robot_status;
 
   for(int i = 0; i < 12; i++){
-  //  printf("%x", buf[i]);
+    printf("%x", buf[i]);
   }
-  //printf("\n");
+  printf("\n");
   return 12; // message lenght
 }
 
